@@ -43,7 +43,9 @@ def login():
 		if login_user:
 			if login_user['password'] == bcrypt.hashpw(request.json['password'].encode('utf-8'),login_user['password']):
 				#session['imei'] = request.json['imei']
-				return jsonify({'id':str(login_user['_id']),'status':200})
+				login_user['_id']=str(login_user['_id'])
+				del login_user['password']
+				return jsonify(login_user)
 			else:
 				return jsonify({'id':"password wrong","status":404})
 		else:
