@@ -103,6 +103,23 @@ def get_passes(status):
 		raise e
 		return jsonify({'id':"failed",'status':500})
 
+@app.route('/api/police/get_pass/<pid>',methods=['GET'])
+def get_pass(pid):
+	try:
+		passes = mongo.db.passes
+
+		p = passes.find_one({"_id":ObjectId(pid)})
+		if p:
+			p['_id']= str(p['_id'])
+			return jsonify(p)
+		else:
+			return jsonify({'id':"pass not exists!!","status":404})
+
+	except Exception as e:
+		raise e
+		return jsonify({'id':"failed",'status':500})
+
+
 
 @app.route('/api/police/validate_pass',methods=['PUT'])
 def validate_pass():
@@ -120,12 +137,12 @@ def validate_pass():
 		return jsonify({'id':"failed",'status':500})
 
 
-@app.route('/api/police/get_user/<id>',methods=['GET'])
-def get_user(id):
+@app.route('/api/police/get_user/<uid>',methods=['GET'])
+def get_user(uid):
 	try:
 		users = mongo.db.user
 
-		user = users.find_one({"_id":ObjectId(id)})
+		user = users.find_one({"_id":ObjectId(uid)})
 		if user:
 			user['_id']= str(user['_id'])
 			del user['password']
@@ -136,7 +153,7 @@ def get_user(id):
 	except Exception as e:
 		raise e
 		return jsonify({'id':"failed",'status':500})
-		
+
 #police usecases ends
 
 if __name__ == '__main__':
