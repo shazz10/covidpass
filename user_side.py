@@ -4,8 +4,38 @@ import bcrypt
 import json
 from bson.objectid import ObjectId
 from database import mongo
+import jwt
+import datetime
+from functools import wraps
 
 user_side = Blueprint('user_side', __name__)
+
+SECRET_KEY = "keepitsecret!!"
+
+def token_required(f):
+	@wraps(f)
+	def decorator(*args,**kwargs):
+
+		token=None
+		users = mongo.db.user
+
+		if 'x-access-tokens' in request.headers:
+			token = request.headers['x-access-tokens']
+
+		if not token:
+			return jsonify({'id':'a valid token is missing','status':303})
+
+		try:
+			data = jwt.decode(token,SECRET_KEY)
+			user = users.find_one({"_id":ObjectId(data['uid'])})
+
+		except Exception as e:
+			return jsonify({"id":"token is invalid!!","status":302}) 
+
+		return f(user,*args,**kwargs)
+
+	return decorator
+
 
 @user_side.route('/api/register',methods=['POST'])
 def register():
@@ -42,7 +72,10 @@ def login():
 		if login_user:
 			if login_user['password'] == bcrypt.hashpw(request.json['password'].encode('utf-8'),login_user['password']):
 				#session['imei'] = request.json['imei']
+
 				login_user['_id']=str(login_user['_id'])
+				token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},SECRET_KEY)
+				login_user['token']=token.decode('UTF-8')
 				del login_user['password']
 				return jsonify({'id':login_user,"status":200})
 			else:
@@ -54,7 +87,8 @@ def login():
 		return jsonify({'id':"failed",'status':500})
 
 @user_side.route('/api/generate_pass',methods=['POST'])
-def generate_pass():
+@token_required
+def generate_pass(current_user):
 	try:
 		passes = mongo.db.passes
 		users = mongo.db.user
