@@ -12,13 +12,12 @@ def register():
 	try:
 
 		users = mongo.db.user
-		existing_user = users.find_one({'imei':request.json['imei']})
+		existing_user = users.find_one({'email':request.json['email']})
 
 		if existing_user is None:
 			hashpass = bcrypt.hashpw(request.json['password'].encode('utf-8'),bcrypt.gensalt())
 			id = users.insert({
 				'name':request.json['name'],
-				'imei':request.json['imei'],
 				'email':request.json['email'],
 				'phone':request.json['phone'],
 				'password':hashpass,
@@ -38,7 +37,7 @@ def register():
 def login():
 	try:
 		users = mongo.db.user
-		login_user = users.find_one({'imei':request.json['imei']})
+		login_user = users.find_one({'email':request.json['email']})
 
 		if login_user:
 			if login_user['password'] == bcrypt.hashpw(request.json['password'].encode('utf-8'),login_user['password']):
@@ -49,7 +48,7 @@ def login():
 			else:
 				return jsonify({'id':"password wrong","status":404})
 		else:
-			return jsonify({'id':"user not exists!!","status":404})
+			return jsonify({'id':"user not exists!!","status":403})
 	except Exception as e:
 		raise e
 		return jsonify({'id':"failed",'status':500})
@@ -62,12 +61,12 @@ def generate_pass():
 
 		id = passes.insert({
 			'proof':request.json['proof'],
-			'type':request.json['type'],#3types within jsr(1), within state(2), outof state(3)
-			'destination':request.json['destination'],
-			'vehicle':request.json['vehicle'],
-			'purpose':request.json['purpose'],
-			'time':request.json['time'],
-			'duration':request.json['duration'],
+			# 'type':request.json['type'],#3types within jsr(1), within state(2), outof state(3)
+			# 'destination':request.json['destination'],
+			# 'vehicle':request.json['vehicle'],
+			# 'purpose':request.json['purpose'],
+			# 'time':request.json['time'],
+			# 'duration':request.json['duration'],
 			'status':0,
 			'uid':request.json['uid']
 			})

@@ -1,0 +1,5 @@
+DBNAME : covidpass
+COLLECTIONS: user,passes
+
+Modifications:
+created index for status in passes with name search_status

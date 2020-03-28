@@ -20,12 +20,12 @@ def get_passes(status):
 		raise e
 		return jsonify({'id':"failed",'status':500})
 
-@police_side.route('/api/police/get_pass/<pid>',methods=['GET'])
-def get_pass(pid):
+@police_side.route('/api/police/get_pass',methods=['POST'])
+def get_pass():
 	try:
 		passes = mongo.db.passes
 
-		p = passes.find_one({"_id":ObjectId(pid)})
+		p = passes.find_one({"_id":ObjectId(request.json['pid'])})
 		if p:
 			p['_id']= str(p['_id'])
 			return jsonify({'id':p,"status":200})
@@ -54,12 +54,12 @@ def validate_pass():
 		return jsonify({'id':"failed",'status':500})
 
 
-@police_side.route('/api/police/get_user/<uid>',methods=['GET'])
-def get_user(uid):
+@police_side.route('/api/police/get_user',methods=['POST'])
+def get_user():
 	try:
 		users = mongo.db.user
 
-		user = users.find_one({"_id":ObjectId(uid)})
+		user = users.find_one({"_id":ObjectId(request.json['uid'])})
 		if user:
 			user['_id']= str(user['_id'])
 			del user['password']
