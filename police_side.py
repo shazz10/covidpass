@@ -15,7 +15,7 @@ def get_passes(status):
 		for p in passes.find({"status":int(status)}):
 			p['_id']=str(p['_id'])
 			all_passes.append(p)
-		return jsonify(all_passes)
+		return jsonify({'id':all_passes,"status":200})
 	except Exception as e:
 		raise e
 		return jsonify({'id':"failed",'status':500})
@@ -28,7 +28,7 @@ def get_pass(pid):
 		p = passes.find_one({"_id":ObjectId(pid)})
 		if p:
 			p['_id']= str(p['_id'])
-			return jsonify(p)
+			return jsonify({'id':p,"status":200})
 		else:
 			return jsonify({'id':"pass not exists!!","status":404})
 
@@ -63,7 +63,7 @@ def get_user(uid):
 		if user:
 			user['_id']= str(user['_id'])
 			del user['password']
-			return jsonify(user)
+			return jsonify({'id':user,"status":200})
 		else:
 			return jsonify({'id':"user not exists!!","status":404})
 

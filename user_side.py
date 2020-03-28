@@ -45,7 +45,7 @@ def login():
 				#session['imei'] = request.json['imei']
 				login_user['_id']=str(login_user['_id'])
 				del login_user['password']
-				return jsonify(login_user)
+				return jsonify({'id':login_user,"status":200})
 			else:
 				return jsonify({'id':"password wrong","status":404})
 		else:
