@@ -10,7 +10,9 @@ app = Flask("__name__")
 #database config starts
 
 app.config["MONGO_DBNAME"]="covidpass"
-app.config["MONGO_URI"]="mongodb://localhost:27017/covidpass"
+app.config["MONGO_URI"]="mongodb+srv://suvidha:5IDRccWJDoZDybch@cluster0-wanjk.mongodb.net/covidpass"
+#username-suvidha
+#password-5IDRccWJDoZDybch
 
 mongo.init_app(app)
 
@@ -30,6 +32,20 @@ from police_side import police_side
 app.register_blueprint(police_side)
 
 #police usecases ends
+
+#delivery_user usecases start
+
+from delivery_user import delivery_user
+app.register_blueprint(delivery_user)
+
+#delivery_user usecases ends
+
+#helper usecases start
+
+from helper import helper
+app.register_blueprint(helper)
+
+#helper usecases ends
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0',port='5000',debug=True)
