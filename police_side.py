@@ -17,7 +17,7 @@ def get_passes(status):
 			all_passes.append(p)
 		return jsonify({'id':all_passes,"status":200})
 	except Exception as e:
-		raise e
+		print(e)
 		return jsonify({'id':"failed",'status':500})
 
 @police_side.route('/api/police/get_pass',methods=['POST'])
@@ -33,7 +33,7 @@ def get_pass():
 			return jsonify({'id':"pass not exists!!","status":404})
 
 	except Exception as e:
-		raise e
+		print(e)
 		return jsonify({'id':"failed",'status':500})
 
 
@@ -50,7 +50,7 @@ def validate_pass():
 
 		return jsonify({'id':"updated",'status':200})
 	except Exception as e:
-		raise e
+		print(e)
 		return jsonify({'id':"failed",'status':500})
 
 
@@ -68,5 +68,5 @@ def get_user():
 			return jsonify({'id':"user not exists!!","status":404})
 
 	except Exception as e:
-		raise e
+		print(e)
 		return jsonify({'id':"failed",'status':500})

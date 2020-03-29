@@ -59,7 +59,7 @@ def register():
 			return jsonify({'id':"user exists!!",'status':401})
 
 	except Exception as e:
-		raise e
+		print(e)
 		return jsonify({'id':"failed",'status':500})
 		
 
@@ -71,11 +71,9 @@ def login():
 
 		if login_user:
 			if login_user['password'] == bcrypt.hashpw(request.json['password'].encode('utf-8'),login_user['password']):
-				#session['imei'] = request.json['imei']
-
 				login_user['_id']=str(login_user['_id'])
 				token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},SECRET_KEY)
-				#login_user['token']=token.decode('UTF-8')
+				login_user['token']=token.decode('UTF-8')
 				del login_user['password']
 				return jsonify({'id':login_user,"status":200})
 			else:
@@ -83,12 +81,13 @@ def login():
 		else:
 			return jsonify({'id':"user not exists!!","status":403})
 	except Exception as e:
-		raise e
+		print(e)
 		return jsonify({'id':"failed",'status':500})
 
+
 @user_side.route('/api/generate_pass',methods=['POST'])
-#@token_required
-def generate_pass():
+@token_required
+def generate_pass(current_user):
 	try:
 		passes = mongo.db.passes
 		users = mongo.db.user
@@ -102,33 +101,37 @@ def generate_pass():
 			# 'time':request.json['time'],
 			# 'duration':request.json['duration'],
 			'status':0,
-			'uid':request.json['uid']
+			'uid':str(current_user['_id'])
 			})
+		passes.create_index([('status',1)], name='search_status', default_language='english')
+
 		#add passenger(name,aadhar,vehicle number,reason)
 		#reason: medical , goods (please specify)
 		#approval, reason of rejection
-		users.find_one_and_update({"_id":ObjectId(request.json['uid'])},
-			{'$push':{'passes':str(id)}})
 		
+		result=users.find_one_and_update({"_id":current_user["_id"]},{'$push':{'passes':str(id)}})
 
+		if not result:
+			passes.remove({"_id":ObjectId(id)})
+			return jsonify({'id':"user not present!!",'status':404})
+		
 		return jsonify({'id':str(id),'status':200})
 
 	except Exception as e:
-		raise e
+		print(e)
 		return jsonify({'id':"failed",'status':500})
 
-@user_side.route('/api/user_passes',methods=['POST'])
-#@token_required
-def user_passes():
+
+
+@user_side.route('/api/user_passes',methods=['GET'])
+@token_required
+def user_passes(current_user):
 	try:
 		passes = mongo.db.passes
 		users = mongo.db.user
 
-		user = users.find_one({"_id":ObjectId(request.json['uid'])})
-		if not user:
-			return jsonify({'id':"user not found","status":404})
 		user_passes=[]
-		for pid in user['passes']:
+		for pid in current_user['passes']:
 			p = passes.find_one({"_id":ObjectId(pid)})
 			if not p:
 				return jsonify({"id":"pass not found","status":403})
@@ -137,5 +140,5 @@ def user_passes():
 
 		return jsonify({'id':user_passes,"status":200})
 	except Exception as e:
-		raise e
+		print(e)
 		return jsonify({'id':"failed","status":500})
