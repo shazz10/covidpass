@@ -75,7 +75,7 @@ def login():
 
 				login_user['_id']=str(login_user['_id'])
 				token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},SECRET_KEY)
-				login_user['token']=token.decode('UTF-8')
+				#login_user['token']=token.decode('UTF-8')
 				del login_user['password']
 				return jsonify({'id':login_user,"status":200})
 			else:
@@ -87,8 +87,8 @@ def login():
 		return jsonify({'id':"failed",'status':500})
 
 @user_side.route('/api/generate_pass',methods=['POST'])
-@token_required
-def generate_pass(current_user):
+#@token_required
+def generate_pass():
 	try:
 		passes = mongo.db.passes
 		users = mongo.db.user
@@ -116,3 +116,26 @@ def generate_pass(current_user):
 	except Exception as e:
 		raise e
 		return jsonify({'id':"failed",'status':500})
+
+@user_side.route('/api/user_passes',methods=['POST'])
+#@token_required
+def user_passes():
+	try:
+		passes = mongo.db.passes
+		users = mongo.db.user
+
+		user = users.find_one({"_id":ObjectId(request.json['uid'])})
+		if not user:
+			return jsonify({'id':"user not found","status":404})
+		user_passes=[]
+		for pid in user['passes']:
+			p = passes.find_one({"_id":ObjectId(pid)})
+			if not p:
+				return jsonify({"id":"pass not found","status":403})
+			p["_id"]=str(p["_id"])
+			user_passes.append(p)
+
+		return jsonify({'id':user_passes,"status":200})
+	except Exception as e:
+		raise e
+		return jsonify({'id':"failed","status":500})
