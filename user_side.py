@@ -50,6 +50,8 @@ def register():
 				'name':request.json['name'],
 				'email':request.json['email'],
 				'phone':request.json['phone'],
+				'address':request.json['address'],
+				'zone':request.json['zone'],
 				'password':hashpass,
 				'passes':[]
 				})
