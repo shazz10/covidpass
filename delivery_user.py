@@ -46,16 +46,18 @@ def getAllShop(current_user):
         output=[]
         shops_in_zone=shops.find({'zone':int(zone)})
         if shops_in_zone is None:
-            return jsonify({'result':'No shops exist in this zone','status':403})
+            return jsonify({'id':'No shops exist in this zone','status':403})
         else:
             for shop in shops_in_zone:
-                output.append({'id':str(shop['_id']),'name':shop['shopname'],'address':shop['address'],'phone':shop['phone'],'type':shop['type'],'items':shop['items']})
-            return jsonify({'result':output,'status':200})
+                shop['_id']=str(shop["_id"])
+                output.append(shop)
+                #output.append({'id':str(shop['_id']),'name':shop['shopname'],'address':shop['address'],'phone':shop['phone'],'type':shop['type'],'items':shop['items']})
+            return jsonify({'id':output,'status':200})
 
 
     except Exception as e:
         print(e)
-        return jsonify({'result':"failed",'status':500})
+        return jsonify({'id':"failed",'status':500})
 
 
 
@@ -80,11 +82,11 @@ def getAllOrders(current_user):
             for oid in dead_orders:
                 users.find_one_and_update({"_id":current_user["_id"]},{"$pull":{'orders':oid}})
 
-        return jsonify({'result':output,'status':200})
+        return jsonify({'id':output,'status':200})
         
     except Exception as e:
         print(e)
-        return jsonify({'result':"failed",'status':500})
+        return jsonify({'id':"failed",'status':500})
 
 
 # @delivery_user.route('/api/singleorder/<oid>',methods=['GET'])
@@ -102,7 +104,7 @@ def getAllOrders(current_user):
 #         return jsonify({'orderId':str(sorder['_id']),'items':sorder['itemnames'],'qty':sorder['qty'],'amount':sorder['amount'],'time':sorder['time'],'status':sorder['status'],'itemprices':current_prices})
 #     except Exception as e:
 #         print(e)
-#         return jsonify({'result':"failed",'status':500})
+#         return jsonify({'id':"failed",'status':500})
 
 
 @delivery_user.route('/api/push_orders',methods=['POST'])
@@ -128,7 +130,7 @@ def pushOrder(current_user):
         if not result1 or not result2:
             orders.remove({"_id":ObjectId(id)})
             return jsonify({'id':"user or shop not present!!",'status':404})
-        return jsonify({'result':str(id),'status':201})
+        return jsonify({'id':str(id),'status':201})
     except Exception as e:
         print(e)
-        return jsonify({'result':"failed",'status':500})
+        return jsonify({'id':"failed",'status':500})

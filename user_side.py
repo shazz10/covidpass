@@ -13,6 +13,7 @@ user_side = Blueprint('user_side', __name__)
 SECRET_KEY = "keepitsecret!!"
 
 zones=[
+	{"name":"All of Jamshedpur","id":0},
 	{"name":"Mango","id":1},
 	{"name":"Kadma","id":2},
 	{"name":"Sonari","id":3},
@@ -22,7 +23,8 @@ zones=[
 	{"name":"Jugsalai","id":7},
 	{"name":"Burma Mines","id":8},
 	{"name":"Telco","id":9},
-	{"name":"Adityapur","id":10}
+	{"name":"Parsudih","id":10},
+	{"name":"Adityapur","id":11}
 ]
 
 def token_required(f):
@@ -111,7 +113,7 @@ def glogin():
 			login_user['_id']=str(login_user['_id'])
 			token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
 			login_user['token']=token.decode('UTF-8')
-			return jsonify({'id':login_user,"status":200,"zone":zone})
+			return jsonify({'id':login_user,"status":200,"zone":zones})
 		else:
 			id=users.insert({
 				'name':request.json['name'],
@@ -121,7 +123,7 @@ def glogin():
 				})
 			users.create_index([('email',1)], name='search_email', default_language='english')
 			token = jwt.encode({'uid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
-			return jsonify({'id':{"token":token},"status":205,"zone":zone})
+			return jsonify({'id':{"token":token},"status":205,"zone":zones})
 	except Exception as e:
 		print(e)
 		return jsonify({'id':"failed",'status':500})

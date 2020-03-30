@@ -46,10 +46,10 @@ def getAllItems():
         ItemCursor=items.find()
         for item in ItemCursor:
             output.append({'itemId':str(item['_id']),'itemName':item['itemname'],'category':item['category'],'itemPrice':item['itemPrice'],'itemQty':item['itemQty'],'item_add_qty':item['item_add_qty']})
-        return jsonify({'result':output,'status':201})
+        return jsonify({'id':output,'status':201})
     except Exception as e:
         print(e)
-        return jsonify({'result':"failed",'status':500})
+        return jsonify({'id':"failed",'status':500})
 
 
 
@@ -63,15 +63,15 @@ def getAllShopOrders(current_shop):
         orders_list=current_shop['orders']
 
         if len(orders_list)==0:
-            return jsonify({'result':'No orders exist','status':300})
+            return jsonify({'id':'No orders exist','status':300})
         else:
             for order in orders_list:
                 sorder=orders.find_one({'_id':ObjectId(order)})
                 output.append({'order_id':str(sorder['_id']),'items':sorder['items'],'uid':sorder['uid'],'amount':sorder['amount'],'time':sorder['time'],'status':sorder['status']})
-            return jsonify({'result':output,'status':201})
+            return jsonify({'id':output,'status':201})
     except Exception as e:
         print(e)
-        return jsonify({'result':"failed",'status':500})
+        return jsonify({'id':"failed",'status':500})
 
 
 @delivery_shopper.route('/api/shop/edit_order',methods=['POST'])
@@ -83,13 +83,13 @@ def editOrders(current_shop):
         result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$set':{'items':request.json['items']}})
 
         if result:
-            return jsonify({'result':"updated successfully",'status':201})
+            return jsonify({'id':"updated successfully",'status':201})
         else:
-            return jsonify({'result':'No orders exist','status':300})
+            return jsonify({'id':'No orders exist','status':300})
 
     except Exception as e:
         print(e)
-        return jsonify({'result':"failed",'status':500})
+        return jsonify({'id':"failed",'status':500})
 
 
 @delivery_shopper.route('/api/shop/update_status',methods=['PUT'])
@@ -101,13 +101,13 @@ def editStatusOrders(current_shop):
         result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$set':{'status':request.json['status']}})
 
         if result:
-            return jsonify({'result':"updated successfully",'status':201})
+            return jsonify({'id':"updated successfully",'status':201})
         else:
-            return jsonify({'result':'No orders exist','status':300})
+            return jsonify({'id':'No orders exist','status':300})
 
     except Exception as e:
         print(e)
-        return jsonify({'result':"failed",'status':500})
+        return jsonify({'id':"failed",'status':500})
 
 
 @delivery_shopper.route('/api/shop/reject_order',methods=['PUT'])
@@ -121,10 +121,10 @@ def rejectOrder(current_shop):
         shops.find_one_and_update({"_id":current_shop["_id"]},{'$pull':{'orders':request.json['oid']}})
 
         if result:
-            return jsonify({'result':"updated successfully",'status':201})
+            return jsonify({'id':"updated successfully",'status':201})
         else:
-            return jsonify({'result':'No orders exist','status':300})
+            return jsonify({'id':'No orders exist','status':300})
             
     except Exception as e:
         print(e)
-        return jsonify({'result':"failed",'status':500})
+        return jsonify({'id':"failed",'status':500})

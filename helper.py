@@ -13,8 +13,29 @@ helper = Blueprint('helper', __name__)
 SECRET_KEY = "keepitsecret!!"
 
 shop_type=[
-    {"name":"Essentials","id":1}
+    {"name":"Essentials","id":1},
+    {"name":"Milk","id":2},
+    {"name":"Bread","id":3},
+    {"name":"Baby-Essentials","id":4},
+    {"name":"Fruits & Vegetable","id":5}
 ]
+
+zones=[
+    {"name":"All of Jamshedpur","id":0},
+    {"name":"Mango","id":1},
+    {"name":"Kadma","id":2},
+    {"name":"Sonari","id":3},
+    {"name":"Bistupur","id":4},
+    {"name":"Sakchi","id":5},
+    {"name":"Golmuri","id":6},
+    {"name":"Jugsalai","id":7},
+    {"name":"Burma Mines","id":8},
+    {"name":"Telco","id":9},
+    {"name":"Parsudih","id":10},
+    {"name":"Adityapur","id":11}
+]
+
+
 
 def token_required(f):
     @wraps(f)
@@ -53,7 +74,7 @@ def loginShop():
             token = jwt.encode({'sid':login_shop['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
             login_shop['token']=token.decode('UTF-8')
 
-            return jsonify({'id':login_shop,"status":200})
+            return jsonify({'id':login_shop,"status":200,"zone":zones})
             
         else:
             id=shops.insert({
@@ -64,7 +85,7 @@ def loginShop():
                 })
             shops.create_index([('email',1)], name='search_email', default_language='english')
             token = jwt.encode({'sid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
-            return jsonify({'id':{"token":token},"status":205})
+            return jsonify({'id':{"token":token},"status":205,"zone":zones})
 
     except Exception as e:
         print(e)
@@ -83,6 +104,7 @@ def registerShop(current_shop):
             'phone':request.json['phone'],
             'address':request.json['address'],
             'zone':int(request.json['zone']),
+            'type':int(request.json['type'])
             }})
 
         return jsonify({'id':"shop updated",'status':201})
