@@ -33,8 +33,7 @@ zones=[
     {"name":"Jugsalai","id":7},
     {"name":"Burma Mines","id":8},
     {"name":"Telco","id":9},
-    {"name":"Parsudih","id":10},
-    {"name":"Adityapur","id":11}
+    {"name":"Parsudih","id":10}
 ]
 
 

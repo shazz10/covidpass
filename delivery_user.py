@@ -51,14 +51,13 @@ def getAllShop(current_user):
             for shop in shops_in_zone:
                 shop['_id']=str(shop["_id"])
                 output.append(shop)
-                #output.append({'id':str(shop['_id']),'name':shop['shopname'],'address':shop['address'],'phone':shop['phone'],'type':shop['type'],'items':shop['items']})
+
             return jsonify({'id':output,'status':200})
 
 
     except Exception as e:
         print(e)
         return jsonify({'id':"failed",'status':500})
-
 
 
 

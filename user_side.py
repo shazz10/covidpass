@@ -23,8 +23,7 @@ zones=[
 	{"name":"Jugsalai","id":7},
 	{"name":"Burma Mines","id":8},
 	{"name":"Telco","id":9},
-	{"name":"Parsudih","id":10},
-	{"name":"Adityapur","id":11}
+	{"name":"Parsudih","id":10}
 ]
 
 def token_required(f):
@@ -103,6 +102,7 @@ def token_required(f):
 # 		return jsonify({'id':"failed",'status':500})
 
 
+
 @user_side.route('/api/glogin',methods=['POST'])
 def glogin():
 	try:
@@ -159,6 +159,20 @@ def gregister(current_user):
 		print(e)
 		return jsonify({'id':"failed",'status':500})
 
+@user_side.route('/api/get_essentials',methods=['GET'])
+@token_required
+def get_essentials(current_user):
+	try:
+		essentials={
+		"delivery_cost":50,
+		"cess_rate":1.5,
+		"zone":zones
+		}
+		return jsonify({'id':essentials,"status":200})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
 
 @user_side.route('/api/generate_pass',methods=['POST'])
 @token_required
