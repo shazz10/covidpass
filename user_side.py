@@ -52,55 +52,55 @@ def token_required(f):
 	return decorator
 
 
-@user_side.route('/api/register',methods=['POST'])
-def register():
-	try:
+# @user_side.route('/api/register',methods=['POST'])
+# def register():
+# 	try:
 
-		users = mongo.db.user
-		existing_user = users.find_one({'email':request.json['email']})
+# 		users = mongo.db.user
+# 		existing_user = users.find_one({'email':request.json['email']})
 
-		if existing_user is None:
-			hashpass = bcrypt.hashpw(request.json['password'].encode('utf-8'),bcrypt.gensalt())
-			id = users.insert({
-				'name':request.json['name'],
-				'email':request.json['email'],
-				'phone':request.json['phone'],
-				'address':request.json['address'],
-				'zone':request.json['zone'],
-				'password':hashpass,
-				'passes':[],
-				'orders':[]
-				})
+# 		if existing_user is None:
+# 			hashpass = bcrypt.hashpw(request.json['password'].encode('utf-8'),bcrypt.gensalt())
+# 			id = users.insert({
+# 				'name':request.json['name'],
+# 				'email':request.json['email'],
+# 				'phone':request.json['phone'],
+# 				'address':request.json['address'],
+# 				'zone':request.json['zone'],
+# 				'password':hashpass,
+# 				'passes':[],
+# 				'orders':[]
+# 				})
 
-			return jsonify({'id':str(id),'status':201})
-		else:
-			return jsonify({'id':"user exists!!",'status':401})
+# 			return jsonify({'id':str(id),'status':201})
+# 		else:
+# 			return jsonify({'id':"user exists!!",'status':401})
 
-	except Exception as e:
-		print(e)
-		return jsonify({'id':"failed",'status':500})
+# 	except Exception as e:
+# 		print(e)
+# 		return jsonify({'id':"failed",'status':500})
 		
 
-@user_side.route('/api/login',methods=['POST'])
-def login():
-	try:
-		users = mongo.db.user
-		login_user = users.find_one({'email':request.json['email']})
+# @user_side.route('/api/login',methods=['POST'])
+# def login():
+# 	try:
+# 		users = mongo.db.user
+# 		login_user = users.find_one({'email':request.json['email']})
 
-		if login_user:
-			if login_user['password'] == bcrypt.hashpw(request.json['password'].encode('utf-8'),login_user['password']):
-				login_user['_id']=str(login_user['_id'])
-				token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
-				login_user['token']=token.decode('UTF-8')
-				del login_user['password']
-				return jsonify({'id':login_user,"status":200})
-			else:
-				return jsonify({'id':"password wrong","status":404})
-		else:
-			return jsonify({'id':"user not exists!!","status":403})
-	except Exception as e:
-		print(e)
-		return jsonify({'id':"failed",'status':500})
+# 		if login_user:
+# 			if login_user['password'] == bcrypt.hashpw(request.json['password'].encode('utf-8'),login_user['password']):
+# 				login_user['_id']=str(login_user['_id'])
+# 				token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
+# 				login_user['token']=token.decode('UTF-8')
+# 				del login_user['password']
+# 				return jsonify({'id':login_user,"status":200})
+# 			else:
+# 				return jsonify({'id':"password wrong","status":404})
+# 		else:
+# 			return jsonify({'id':"user not exists!!","status":403})
+# 	except Exception as e:
+# 		print(e)
+# 		return jsonify({'id':"failed",'status':500})
 
 
 @user_side.route('/api/glogin',methods=['POST'])
@@ -121,9 +121,18 @@ def glogin():
 				'passes':[],
 				'orders':[]
 				})
+			
 			users.create_index([('email',1)], name='search_email', default_language='english')
 			token = jwt.encode({'uid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
-			return jsonify({'id':{"token":token},"status":205,"zone":zones})
+			login_user={
+				'_id':str(id),
+				'name':request.json['name'],
+				'email':request.json['email'],
+				'passes':[],
+				'orders':[],
+				'token':token
+			}
+			return jsonify({'id':login_user,"status":205,"zone":zones})
 	except Exception as e:
 		print(e)
 		return jsonify({'id':"failed",'status':500})
