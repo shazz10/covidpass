@@ -43,16 +43,18 @@ def getAllShop(current_user):
         #users = mongo.db.user
         #current_user = users.find_one({'_id':ObjectId(request.json['uid'])})
         zone = request.json['zone']
-        output=[]
-        shops_in_zone=shops.find({'zone':int(zone)})
-        if shops_in_zone is None:
-            return jsonify({'id':'No shops exist in this zone','status':403})
-        else:
-            for shop in shops_in_zone:
-                shop['_id']=str(shop["_id"])
-                output.append(shop)
 
+        output=[]
+        shops_in_zone=shops.find({'zone':int(zone),'type':int(request.json['type'])})
+        
+        for shop in shops_in_zone:
+            shop['_id']=str(shop["_id"])
+            output.append(shop)
+
+        if len(output)>0:
             return jsonify({'id':output,'status':200})
+        else:
+            return jsonify({'id':"no shops exists!!",'status':400})
 
 
     except Exception as e:
