@@ -56,7 +56,7 @@ def register():
 				'passes':[],
 				'orders':[]
 				})
-			#session['imei'] = request.json['imei']
+
 			return jsonify({'id':str(id),'status':201})
 		else:
 			return jsonify({'id':"user exists!!",'status':401})

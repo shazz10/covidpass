@@ -57,7 +57,8 @@ def registerShop():
         print(e)
         return jsonify({'id':"failed",'status':500})
 
-@user_side.route('/api/shop/login',methods=['POST'])
+
+@helper.route('/api/shop/login',methods=['POST'])
 def loginShop():
     try:
         shops = mongo.db.shop
