@@ -75,7 +75,7 @@ def login():
 		if login_user:
 			if login_user['password'] == bcrypt.hashpw(request.json['password'].encode('utf-8'),login_user['password']):
 				login_user['_id']=str(login_user['_id'])
-				token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},SECRET_KEY)
+				token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
 				login_user['token']=token.decode('UTF-8')
 				del login_user['password']
 				return jsonify({'id':login_user,"status":200})
@@ -96,7 +96,7 @@ def glogin():
 
 		if login_user:
 			login_user['_id']=str(login_user['_id'])
-			token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},SECRET_KEY)
+			token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
 			login_user['token']=token.decode('UTF-8')
 			return jsonify({'id':login_user,"status":200})
 		else:
@@ -107,7 +107,7 @@ def glogin():
 				'orders':[]
 				})
 			users.create_index([('email',1)], name='search_email', default_language='english')
-			token = jwt.encode({'uid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},SECRET_KEY)
+			token = jwt.encode({'uid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
 			return jsonify({'id':{"token":token},"status":205})
 	except Exception as e:
 		print(e)

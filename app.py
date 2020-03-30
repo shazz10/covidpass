@@ -47,5 +47,12 @@ app.register_blueprint(helper)
 
 #helper usecases ends
 
+#delivery_shopper usecases start
+
+from delivery_shopper import delivery_shopper
+app.register_blueprint(delivery_shopper)
+
+#delivery_shopper usecases ends
+
 if __name__ == '__main__':
 	app.run(host='0.0.0.0',port='5000',debug=True)
