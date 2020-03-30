@@ -35,7 +35,7 @@ def token_required(f):
 
     return decorator
 
-@delivery_user.route('/api/shop',methods=['GET'])
+@delivery_user.route('/api/get_shops',methods=['GET'])
 @token_required
 def getAllShop(current_user):
     try:
@@ -58,73 +58,76 @@ def getAllShop(current_user):
         return jsonify({'result':"failed",'status':500})
 
 
-@delivery_user.route('/api/items',methods=['GET'])
-def getAllItems():
-    try:
-        items = mongo.db.item
-        output=[]
-        itemsCursor=items.find()
-        if itemsCursor is None:
-            return jsonify({'result':'No shops exist in this zone','status':201})
-        else:
-            for sitem in itemsCursor:
-                output.append({'itemId':str(sitem['_id']),'itemname':sitem['itemname'],'price':sitem['price'],'type':str(sitem['type']),'unitqty':sitem['unitqty']})
-            return jsonify({'result':output,'status':201})
 
 
-    except Exception as e:
-        print(e)
-        return jsonify({'result':"failed",'status':500})
-
-@delivery_user.route('/api/orders',methods=['GET'])
+@delivery_user.route('/api/get_orders',methods=['GET'])
 @token_required
 def getAllOrders(current_user):
     try:
         orders = mongo.db.order
+        users = mongo.db.user
         output=[]
-        userOrders=orders.find({'uid':str(current_user["_id"])})
-        if userOrders is None:
-            return jsonify({'result':'Yoy have not ordered anything','status':300})
-        else:
-            for sorder in userOrders:
-                output.append({'orderId':str(sorder['_id']),'items':sorder['itemnames'],'qty':sorder['qty'],'amount':sorder['amount'],'time':sorder['time'],'status':sorder['status']})
-            return jsonify({'result':output,'status':201})
+        dead_orders=[]
+        for oid in current_user["orders"]:
+            o = orders.find_one({"_id":ObjectId(oid)})
+            if o:
+                o["_id"]=str(o["_id"])
+                output.append(o)
+            else:
+                dead_orders.append(oid)
+
+        if len(dead_orders)>0:
+            for oid in dead_orders:
+                users.find_one_and_update({"_id":current_user["_id"]},{"$pull":{'orders':oid}})
+
+        return jsonify({'result':output,'status':200})
+        
     except Exception as e:
         print(e)
         return jsonify({'result':"failed",'status':500})
 
 
-@delivery_user.route('/api/singleorder/<oid>',methods=['GET'])
-def getSingleOrders(oid):
-    try:
-        orders = mongo.db.order
-        items = mongo.db.item
-        output=[]
-        sorder=orders.find_one({'_id':ObjectId(oid)})
-        current_items = sorder['items']
-        current_prices = []
-        for it in current_items:
-            itemf = items.find_one({'_id':ObjectId(it)})
-            current_prices.append(itemf['price'])
-        return jsonify({'orderId':str(sorder['_id']),'items':sorder['itemnames'],'qty':sorder['qty'],'amount':sorder['amount'],'time':sorder['time'],'status':sorder['status'],'itemprices':current_prices})
-    except Exception as e:
-        print(e)
-        return jsonify({'result':"failed",'status':500})
+# @delivery_user.route('/api/singleorder/<oid>',methods=['GET'])
+# def getSingleOrders(oid):
+#     try:
+#         orders = mongo.db.order
+#         items = mongo.db.item
+#         output=[]
+#         sorder=orders.find_one({'_id':ObjectId(oid)})
+#         current_items = sorder['items']
+#         current_prices = []
+#         for it in current_items:
+#             itemf = items.find_one({'_id':ObjectId(it)})
+#             current_prices.append(itemf['price'])
+#         return jsonify({'orderId':str(sorder['_id']),'items':sorder['itemnames'],'qty':sorder['qty'],'amount':sorder['amount'],'time':sorder['time'],'status':sorder['status'],'itemprices':current_prices})
+#     except Exception as e:
+#         print(e)
+#         return jsonify({'result':"failed",'status':500})
 
-@delivery_user.route('/api/orders',methods=['POST'])
-def pushOrder():
+
+@delivery_user.route('/api/push_orders',methods=['POST'])
+@token_required
+def pushOrder(current_user):
     try:
         orders = mongo.db.order
+        users = mongo.db.user
+        shops = mongo.db.shop
+
         id = orders.insert({
         'items':request.json['items'],
-        'itemnames':request.json['itemnames'],
-        'qty':request.json['qty'],
         'uid':str(current_user["_id"]),
+        'sid':request.json['sid'],
         'amount':request.json['amount'],
         'time':request.json['time'],
-        'status':request.json['status'],
+        'status':0,
         })
 
+        result1=users.find_one_and_update({"_id":current_user["_id"]},{'$push':{'orders':str(id)}})
+        result2=shops.find_one_and_update({"_id":request.json["sid"]},{'$push':{'orders':str(id)}})
+
+        if not result1 or not result2:
+            orders.remove({"_id":ObjectId(id)})
+            return jsonify({'id':"user or shop not present!!",'status':404})
         return jsonify({'result':str(id),'status':201})
     except Exception as e:
         print(e)

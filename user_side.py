@@ -53,7 +53,8 @@ def register():
 				'address':request.json['address'],
 				'zone':request.json['zone'],
 				'password':hashpass,
-				'passes':[]
+				'passes':[],
+				'orders':[]
 				})
 			#session['imei'] = request.json['imei']
 			return jsonify({'id':str(id),'status':201})
@@ -96,12 +97,12 @@ def generate_pass(current_user):
 
 		id = passes.insert({
 			'proof':request.json['proof'],
-			# 'type':request.json['type'],#3types within jsr(1), within state(2), outof state(3)
-			# 'destination':request.json['destination'],
-			# 'vehicle':request.json['vehicle'],
-			# 'purpose':request.json['purpose'],
-			# 'time':request.json['time'],
-			# 'duration':request.json['duration'],
+			'type':request.json['type'],#3types within jsr(1), within state(2), outof state(3)
+			'destination':request.json['destination'],
+			'vehicle':request.json['vehicle'],
+			'purpose':request.json['purpose'],
+			'time':request.json['time'],
+			'duration':request.json['duration'],
 			'status':0,
 			'uid':str(current_user['_id'])
 			})
@@ -133,12 +134,18 @@ def user_passes(current_user):
 		users = mongo.db.user
 
 		user_passes=[]
+		dead_passes=[]
 		for pid in current_user['passes']:
 			p = passes.find_one({"_id":ObjectId(pid)})
-			if not p:
-				return jsonify({"id":"pass not found","status":403})
-			p["_id"]=str(p["_id"])
-			user_passes.append(p)
+			if p:
+				p["_id"]=str(p["_id"])
+				user_passes.append(p)
+			else:
+				dead_passes.append(pid)
+
+		if len(dead_passes)>0:
+			for pid in dead_passes:
+				users.find_one_and_update({"_id":current_user["_id"]},{"$pull":{'passes':pid}})
 
 		return jsonify({'id':user_passes,"status":200})
 	except Exception as e:
