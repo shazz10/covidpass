@@ -12,6 +12,10 @@ helper = Blueprint('helper', __name__)
 
 SECRET_KEY = "keepitsecret!!"
 
+shop_type=[
+    {"name":"Essentials","id":1}
+]
+
 def token_required(f):
     @wraps(f)
     def decorator(*args,**kwargs):
