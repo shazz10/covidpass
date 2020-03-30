@@ -17,7 +17,9 @@ shop_type=[
     {"name":"Milk","id":2},
     {"name":"Bread","id":3},
     {"name":"Baby-Essentials","id":4},
-    {"name":"Fruits & Vegetable","id":5}
+    {"name":"Fruits & Vegetable","id":5},
+    {"name":"Medicines","id":6},
+    {"name":"Gas Station","id":7}
 ]
 
 zones=[
