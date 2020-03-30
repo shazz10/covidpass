@@ -12,7 +12,7 @@ helper = Blueprint('helper', __name__)
 
 SECRET_KEY = "keepitsecret!!"
 
-shop_type=[
+shop_types=[
     {"name":"Essentials","id":1},
     {"name":"Milk","id":2},
     {"name":"Bread","id":3},
@@ -75,7 +75,7 @@ def loginShop():
             token = jwt.encode({'sid':login_shop['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
             login_shop['token']=token.decode('UTF-8')
 
-            return jsonify({'id':login_shop,"status":200,"zone":zones})
+            return jsonify({'id':login_shop,"status":200,"zones":zones,"shop_types":shop_types})
             
         else:
             id=shops.insert({
@@ -86,7 +86,15 @@ def loginShop():
                 })
             shops.create_index([('email',1)], name='search_email', default_language='english')
             token = jwt.encode({'sid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
-            return jsonify({'id':{"token":token},"status":205,"zone":zones})
+            login_shop={
+                '_id':str(id),
+                'name':request.json['name'],
+                'email':request.json['email'],
+                'items':[],
+                'orders':[],
+                'token':token
+            }
+            return jsonify({'id':login_shop,"status":205,"zones":zones,"shop_types":shop_types})
 
     except Exception as e:
         print(e)

@@ -26,6 +26,16 @@ zones=[
 	{"name":"Parsudih","id":10}
 ]
 
+shop_types=[
+    {"name":"Essentials","id":1},
+    {"name":"Milk","id":2},
+    {"name":"Bread","id":3},
+    {"name":"Baby-Essentials","id":4},
+    {"name":"Fruits & Vegetable","id":5},
+    {"name":"Medicines","id":6},
+    {"name":"Gas Station","id":7}
+]
+
 def token_required(f):
 	@wraps(f)
 	def decorator(*args,**kwargs):
@@ -166,13 +176,15 @@ def get_essentials(current_user):
 		essentials={
 		"delivery_cost":50,
 		"cess_rate":1.5,
-		"zone":zones
+		"zones":zones,
+		"shop_types":shop_types
 		}
 		return jsonify({'id':essentials,"status":200})
 
 	except Exception as e:
 		print(e)
 		return jsonify({'id':"failed",'status':500})
+
 
 @user_side.route('/api/generate_pass',methods=['POST'])
 @token_required

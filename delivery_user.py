@@ -35,14 +35,14 @@ def token_required(f):
 
     return decorator
 
-@delivery_user.route('/api/get_shops',methods=['GET'])
+@delivery_user.route('/api/get_shops',methods=['POST'])
 @token_required
 def getAllShop(current_user):
     try:
         shops = mongo.db.shop
-        users = mongo.db.user
+        #users = mongo.db.user
         #current_user = users.find_one({'_id':ObjectId(request.json['uid'])})
-        zone = current_user['zone']
+        zone = request.json['zone']
         output=[]
         shops_in_zone=shops.find({'zone':int(zone)})
         if shops_in_zone is None:
