@@ -88,6 +88,53 @@ def login():
 		return jsonify({'id':"failed",'status':500})
 
 
+@user_side.route('/api/glogin',methods=['POST'])
+def glogin():
+	try:
+		users = mongo.db.user
+		login_user = users.find_one({'email':request.json['email']})
+
+		if login_user:
+			login_user['_id']=str(login_user['_id'])
+			token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},SECRET_KEY)
+			login_user['token']=token.decode('UTF-8')
+			return jsonify({'id':login_user,"status":200})
+		else:
+			id=users.insert({
+				'name':request.json['name'],
+				'email':request.json['email'],
+				'passes':[],
+				'orders':[]
+				})
+			users.create_index([('email',1)], name='search_email', default_language='english')
+			token = jwt.encode({'uid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},SECRET_KEY)
+			return jsonify({'id':{"token":token},"status":205})
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@user_side.route('/api/gregister',methods=['POST'])
+@token_required
+def gregister(current_user):
+	try:
+
+		users = mongo.db.user
+		
+		id = users.find_one_and_update({"_id":current_user["_id"]},{"$set":{
+			'phone':request.json['phone'],
+			'address':request.json['address'],
+			'zone':request.json['zone'],
+			}})
+
+		return jsonify({'id':"user updated",'status':201})
+		
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
 @user_side.route('/api/generate_pass',methods=['POST'])
 @token_required
 def generate_pass(current_user):
