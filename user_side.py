@@ -146,6 +146,10 @@ def generate_pass(current_user):
 		id = passes.insert({
 			'proof':request.json['proof'],
 			'type':request.json['type'],#3types within jsr(1), within state(2), outof state(3)
+			'senior_citizen':request.json['senior_citizen'],
+			'passenger_count':request.json['passenger_count'],
+			'urgency':request.json['urgency'],
+			'urgency_text':request.json['urgency_text'],
 			'destination':request.json['destination'],
 			'vehicle':request.json['vehicle'],
 			'purpose':request.json['purpose'],

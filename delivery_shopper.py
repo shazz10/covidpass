@@ -74,7 +74,7 @@ def getAllShopOrders(current_shop):
         return jsonify({'result':"failed",'status':500})
 
 
-@delivery_shopper.route('/api/shop/orderedit',methods=['POST'])
+@delivery_shopper.route('/api/shop/edit_order',methods=['POST'])
 @token_required
 def editOrders(current_shop):
     try:
@@ -92,13 +92,33 @@ def editOrders(current_shop):
         return jsonify({'result':"failed",'status':500})
 
 
-@delivery_shopper.route('/api/shop/orderstatus',methods=['PUT'])
+@delivery_shopper.route('/api/shop/update_status',methods=['PUT'])
 @token_required
 def editStatusOrders(current_shop):
     try:
         orders = mongo.db.order
 
         result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$set':{'status':request.json['status']}})
+
+        if result:
+            return jsonify({'result':"updated successfully",'status':201})
+        else:
+            return jsonify({'result':'No orders exist','status':300})
+
+    except Exception as e:
+        print(e)
+        return jsonify({'result':"failed",'status':500})
+
+
+@delivery_shopper.route('/api/shop/reject_order',methods=['PUT'])
+@token_required
+def rejectOrder(current_shop):
+    try:
+        orders = mongo.db.order
+        shops = mongo.db.shop
+
+        result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$set':{'status':-1}})
+        shops.find_one_and_update({"_id":current_shop["_id"]},{'$pull':{'orders':request.json['oid']}})
 
         if result:
             return jsonify({'result':"updated successfully",'status':201})
