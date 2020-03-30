@@ -122,6 +122,7 @@ def gregister(current_user):
 		users = mongo.db.user
 		
 		id = users.find_one_and_update({"_id":current_user["_id"]},{"$set":{
+			'name':request.json['name'],
 			'phone':request.json['phone'],
 			'address':request.json['address'],
 			'zone':request.json['zone'],
