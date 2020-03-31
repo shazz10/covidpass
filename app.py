@@ -3,7 +3,7 @@ import bcrypt
 import json
 from bson.objectid import ObjectId
 from database import mongo
-
+import os
 
 app = Flask("__name__")
 
@@ -55,4 +55,4 @@ app.register_blueprint(delivery_shopper)
 #delivery_shopper usecases ends
 
 if __name__ == '__main__':
-	app.run(host='0.0.0.0',port='5000',debug=True)
+	app.run(host='0.0.0.0',port=os.environ.get('PORT', '5000'),debug=True)

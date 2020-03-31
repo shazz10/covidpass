@@ -69,12 +69,16 @@ def getAllOrders(current_user):
     try:
         orders = mongo.db.order
         users = mongo.db.user
+        shops = mongo.db.shop
         output=[]
         dead_orders=[]
         for oid in current_user["orders"]:
             o = orders.find_one({"_id":ObjectId(oid)})
             if o:
                 o["_id"]=str(o["_id"])
+                shop = shops.find_one({"_id":ObjectId(o['sid'])})
+                shop["_id"]=str(shop["_id"])
+                o["shop_details"]=shop
                 output.append(o)
             else:
                 dead_orders.append(oid)
@@ -126,7 +130,7 @@ def pushOrder(current_user):
         })
 
         result1=users.find_one_and_update({"_id":current_user["_id"]},{'$push':{'orders':str(id)}})
-        result2=shops.find_one_and_update({"_id":request.json["sid"]},{'$push':{'orders':str(id)}})
+        result2=shops.find_one_and_update({"_id":ObjectId(request.json["sid"])},{'$push':{'orders':str(id)}})
 
         if not result1 or not result2:
             orders.remove({"_id":ObjectId(id)})
