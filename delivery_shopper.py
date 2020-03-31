@@ -45,7 +45,13 @@ def getAllItems():
         output=[]
         ItemCursor=items.find()
         for item in ItemCursor:
-            output.append({'itemId':str(item['_id']),'itemName':item['itemname'],'category':item['category'],'itemPrice':item['itemPrice'],'itemQty':item['itemQty'],'item_add_qty':item['item_add_qty']})
+            output.append({
+                'itemName':item['itemName'],
+                'category':item['category'],
+                'itemPrice':item['itemPrice'],
+                'itemQty':item['itemQty'],
+                'itemCompany':item['itemCompany'],
+                'item_add_qty':item['item_add_qty']})
         return jsonify({'id':output,'status':201})
     except Exception as e:
         print(e)
@@ -67,7 +73,9 @@ def getAllShopOrders(current_shop):
         else:
             for order in orders_list:
                 sorder=orders.find_one({'_id':ObjectId(order)})
-                output.append({'order_id':str(sorder['_id']),'items':sorder['items'],'uid':sorder['uid'],'amount':sorder['amount'],'time':sorder['time'],'status':sorder['status']})
+                if sorder:
+                    sorder['_id']=str(sorder["_id"])
+                    output.append(sorder)
             return jsonify({'id':output,'status':201})
     except Exception as e:
         print(e)
@@ -80,7 +88,7 @@ def editOrders(current_shop):
     try:
         orders = mongo.db.order
         
-        result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$set':{'items':request.json['items']}})
+        result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$set':{'items':request.json['items'],'amount':request.json['amount']}})
 
         if result:
             return jsonify({'id':"updated successfully",'status':201})

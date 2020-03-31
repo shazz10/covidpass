@@ -138,3 +138,16 @@ def updateInventory(current_shop):
 
 
 
+
+
+@helper.route('/api/item_insert',methods=['POST'])
+def insertItem():
+    try:
+        items = mongo.db.item
+        items.insert(request.json)
+        return jsonify({'id':"inventory updated!!",'status':200})
+
+    except Exception as e:
+        print(e)
+        return jsonify({'id':"failed",'status':500})
+

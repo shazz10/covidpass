@@ -162,6 +162,7 @@ def gregister(current_user):
 			'zone':request.json['zone'],
 			}})
 
+		
 		return jsonify({'id':"user updated",'status':201})
 		
 
