@@ -92,7 +92,7 @@ def loginShop():
                 'email':request.json['email'],
                 'items':[],
                 'orders':[],
-                'token':token
+                'token':token.decode('UTF-8')
             }
             return jsonify({'id':login_shop,"status":205,"zones":zones,"shop_types":shop_types})
 

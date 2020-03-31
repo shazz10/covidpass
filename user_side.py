@@ -140,7 +140,7 @@ def glogin():
 				'email':request.json['email'],
 				'passes':[],
 				'orders':[],
-				'token':token
+				'token':token.decode('UTF-8')
 			}
 			return jsonify({'id':login_user,"status":205,"zone":zones})
 	except Exception as e:
