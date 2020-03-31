@@ -11,6 +11,7 @@ delivery_user = Blueprint('delivery_user', __name__)
 
 SECRET_KEY = "keepitsecret!!"
 
+
 def token_required(f):
     @wraps(f)
     def decorator(*args,**kwargs):
@@ -35,6 +36,7 @@ def token_required(f):
 
     return decorator
 
+
 @delivery_user.route('/api/get_shops',methods=['POST'])
 @token_required
 def getAllShop(current_user):
@@ -49,6 +51,7 @@ def getAllShop(current_user):
         
         for shop in shops_in_zone:
             shop['_id']=str(shop["_id"])
+            del shop['orders']
             output.append(shop)
 
         if len(output)>0:
@@ -78,6 +81,7 @@ def getAllOrders(current_user):
                 o["_id"]=str(o["_id"])
                 shop = shops.find_one({"_id":ObjectId(o['sid'])})
                 shop["_id"]=str(shop["_id"])
+                del shop['orders']
                 o["shop_details"]=shop
                 output.append(o)
             else:
