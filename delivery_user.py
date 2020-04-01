@@ -47,12 +47,11 @@ def getAllShop(current_user):
         zone = request.json['zone']
 
         output=[]
-        shops_in_zone=shops.find({'type':int(request.json['type']),'zone':int(request.json['zone'])})
+        shops_in_zone=shops.find({'type':int(request.json['type']),'zone':int(request.json['zone'])},
+            {"_id":1,"address":1,"email":1,"name":1,"phone":1,"type":1})
         
         for shop in shops_in_zone:
             shop['_id']=str(shop["_id"])
-            del shop['orders']
-            del shop['zone']
             shop['items'] = None
             output.append(shop)
 
@@ -73,7 +72,8 @@ def get_shop_items(current_user):
     try:
         shops = mongo.db.shop
         
-        shop = shops.find_one({"_id":ObjectId(request.json['sid'])})
+        shop = shops.find_one({"_id":ObjectId(request.json['sid'])},
+                              {"items":1})
         
         items = shop['items']
 
@@ -98,13 +98,15 @@ def getAllOrders(current_user):
         shops = mongo.db.shop
         output=[]
         dead_orders=[]
+        print(current_user["orders"])
         for oid in current_user["orders"]:
             o = orders.find_one({"_id":ObjectId(oid)})
+
             if o:
                 o["_id"]=str(o["_id"])
-                shop = shops.find_one({"_id":ObjectId(o['sid'])})
+                shop = shops.find_one({"_id":ObjectId(o['sid'])},
+                    {"_id":1,"name":1,"email":1,"address":1,"phone":1})
                 shop["_id"]=str(shop["_id"])
-                del shop['orders']
                 o["shop_details"]=shop
                 output.append(o)
             else:
@@ -134,11 +136,11 @@ def get_order(current_user):
 
         if o:
             o["_id"]=str(o["_id"])
-            shop = shops.find_one({"_id":ObjectId(o['sid'])})
+            shop = shops.find_one({"_id":ObjectId(o['sid'])},
+                    {"_id":1,"name":1,"email":1,"address":1,"phone":1})
             shop["_id"]=str(shop["_id"])
-            del shop['orders']
             o["shop_details"]=shop
-            return jsonify({'id':order,'status':200})
+            return jsonify({'id':o,'status':200})
         else:
             return jsonify({'id':'No such order!!','status':404})
 

@@ -212,6 +212,7 @@ def generate_pass(current_user):
 			'destination':request.json['destination'],
 			'vehicle':request.json['vehicle'],
 			'purpose':request.json['purpose'],
+			'date':request.json['date'],
 			'time':request.json['time'],
 			'duration':request.json['duration'],
 			'status':0,
