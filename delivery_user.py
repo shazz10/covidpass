@@ -47,15 +47,38 @@ def getAllShop(current_user):
         zone = request.json['zone']
 
         output=[]
-        shops_in_zone=shops.find({'zone':int(zone),'type':int(request.json['type'])})
+        shops_in_zone=shops.find({'type':int(request.json['type']),'zone':int(request.json['zone'])})
         
         for shop in shops_in_zone:
             shop['_id']=str(shop["_id"])
             del shop['orders']
+            del shop['zone']
+            shop['items'] = None
             output.append(shop)
 
         if len(output)>0:
             return jsonify({'id':output,'status':200})
+        else:
+            return jsonify({'id':"no shops exists!!",'status':400})
+
+
+    except Exception as e:
+        print(e)
+        return jsonify({'id':"failed",'status':500})
+
+
+@delivery_user.route('/api/get_shop_items',methods=['POST'])
+@token_required
+def get_shop_items(current_user):
+    try:
+        shops = mongo.db.shop
+        
+        shop = shops.find_one({"_id":ObjectId(request.json['sid'])})
+        
+        items = shop['items']
+
+        if shop:
+            return jsonify({'id':items,'status':200})
         else:
             return jsonify({'id':"no shops exists!!",'status':400})
 
@@ -92,6 +115,33 @@ def getAllOrders(current_user):
                 users.find_one_and_update({"_id":current_user["_id"]},{"$pull":{'orders':oid}})
 
         return jsonify({'id':output,'status':200})
+        
+    except Exception as e:
+        print(e)
+        return jsonify({'id':"failed",'status':500})
+
+
+@delivery_user.route('/api/get_order',methods=['POST'])
+@token_required
+def get_order(current_user):
+    try:
+        orders = mongo.db.order
+        users = mongo.db.user
+        shops = mongo.db.shop
+
+        
+        o = orders.find_one({"_id":ObjectId(request.json['oid'])})
+
+        if o:
+            o["_id"]=str(o["_id"])
+            shop = shops.find_one({"_id":ObjectId(o['sid'])})
+            shop["_id"]=str(shop["_id"])
+            del shop['orders']
+            o["shop_details"]=shop
+            return jsonify({'id':order,'status':200})
+        else:
+            return jsonify({'id':'No such order!!','status':404})
+
         
     except Exception as e:
         print(e)

@@ -12,6 +12,8 @@ user_side = Blueprint('user_side', __name__)
 
 SECRET_KEY = "keepitsecret!!"
 
+PASSWORD = "Nitsuvidha1!"
+
 zones=[
 	{"name":"All of Jamshedpur","id":0},
 	{"name":"Mango","id":1},
@@ -117,11 +119,17 @@ def token_required(f):
 def glogin():
 	try:
 		users = mongo.db.user
-		login_user = users.find_one({'email':request.json['email']})
+		auth = request.authorization
+		if not auth or not auth.username or not auth.password:
+			return jsonify({'id':"not authorized",'status':404})
+		if auth.password != PASSWORD:
+			return jsonify({'id':"not authorized",'status':404})
+
+		login_user = users.find_one({'email':auth.username})
 
 		if login_user:
 			login_user['_id']=str(login_user['_id'])
-			token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
+			token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=7200)},SECRET_KEY)
 			login_user['token']=token.decode('UTF-8')
 			return jsonify({'id':login_user,"status":200,"zone":zones})
 		else:
@@ -133,7 +141,7 @@ def glogin():
 				})
 			
 			users.create_index([('email',1)], name='search_email', default_language='english')
-			token = jwt.encode({'uid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
+			token = jwt.encode({'uid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=7200)},SECRET_KEY)
 			login_user={
 				'_id':str(id),
 				'name':request.json['name'],
@@ -162,7 +170,7 @@ def gregister(current_user):
 			'zone':request.json['zone'],
 			}})
 
-		
+
 		return jsonify({'id':"user updated",'status':201})
 		
 

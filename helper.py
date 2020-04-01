@@ -12,6 +12,8 @@ helper = Blueprint('helper', __name__)
 
 SECRET_KEY = "keepitsecret!!"
 
+PASSWORD = "Nitsuvidha1!"
+
 shop_types=[
     {"name":"Essentials","id":1},
     {"name":"Milk","id":2},
@@ -67,12 +69,19 @@ def token_required(f):
 def loginShop():
     try:
         shops = mongo.db.shop
-        login_shop = shops.find_one({'email':request.json['email']})
+        auth = request.authorization
+        if not auth or not auth.username or not auth.password:
+            return jsonify({'id':"not authorized",'status':404})
+        if auth.password != PASSWORD:
+            return jsonify({'id':"not authorized",'status':404})
+
+        login_shop = users.find_one({'email':auth.username})
+
 
         if login_shop:
             
             login_shop['_id']=str(login_shop['_id'])
-            token = jwt.encode({'sid':login_shop['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
+            token = jwt.encode({'sid':login_shop['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=7200)},SECRET_KEY)
             login_shop['token']=token.decode('UTF-8')
 
             return jsonify({'id':login_shop,"status":200,"zones":zones,"shop_types":shop_types})
@@ -85,7 +94,7 @@ def loginShop():
                 'orders':[]
                 })
             shops.create_index([('email',1)], name='search_email', default_language='english')
-            token = jwt.encode({'sid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
+            token = jwt.encode({'sid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=7200)},SECRET_KEY)
             login_shop={
                 '_id':str(id),
                 'name':request.json['name'],
