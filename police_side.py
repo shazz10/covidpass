@@ -12,6 +12,8 @@ police_side = Blueprint('police_side', __name__)
 
 SECRET_KEY = "keepitsecret!!"
 
+
+
 @police_side.route('/api/register_police',methods=['POST'])
 def register():
 	try:
@@ -37,6 +39,7 @@ def register():
 		return jsonify({'id':"failed",'status':500})
 		
 
+
 @police_side.route('/api/login_police',methods=['POST'])
 def login():
 	try:
@@ -57,7 +60,8 @@ def login():
 	except Exception as e:
 		print(e)
 		return jsonify({'id':"failed",'status':500})
-		
+
+
 
 @police_side.route('/api/police/get_passes/<status>',methods=['GET'])
 def get_passes(status):
@@ -71,6 +75,9 @@ def get_passes(status):
 	except Exception as e:
 		print(e)
 		return jsonify({'id':"failed",'status':500})
+
+
+
 
 @police_side.route('/api/police/get_pass',methods=['POST'])
 def get_pass():
@@ -104,6 +111,8 @@ def validate_pass():
 	except Exception as e:
 		print(e)
 		return jsonify({'id':"failed",'status':500})
+
+
 
 
 @police_side.route('/api/police/get_user',methods=['POST'])
