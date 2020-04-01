@@ -9,6 +9,56 @@ import datetime
 from functools import wraps
 
 police_side = Blueprint('police_side', __name__)
+SECRET_KEY = "keepitsecret!!"
+
+@police_side.route('/api/register_police',methods=['POST'])
+def register():
+	try:
+
+		polices = mongo.db.police
+		existing_police = polices.find_one({'email':request.json['email']})
+
+		if existing_police is None:
+			hashpass = bcrypt.hashpw(request.json['password'].encode('utf-8'),bcrypt.gensalt())
+			id = polices.insert({
+				'name':request.json['name'],
+				'email':request.json['email'],
+				'phone':request.json['phone'],
+				'password':hashpass
+				})
+
+			return jsonify({'id':str(id),'status':201})
+		else:
+			return jsonify({'id':"user exists!!",'status':401})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+		
+
+@police_side.route('/api/login_police',methods=['POST'])
+def login():
+	try:
+		polices = mongo.db.police
+		login_police = polices.find_one({'email':request.json['email']})
+
+		if login_police:
+			if login_police['password'] == bcrypt.hashpw(request.json['password'].encode('utf-8'),login_police['password']):
+				login_police['_id']=str(login_police['_id'])
+				token = jwt.encode({'uid':login_police['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
+				login_police['token']=token.decode('UTF-8')
+				del login_police['password']
+				return jsonify({'id':login_police,"status":200})
+			else:
+				return jsonify({'id':"password wrong","status":404})
+		else:
+			return jsonify({'id':"user not exists!!","status":403})
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+
 
 @police_side.route('/api/police/get_passes/<status>',methods=['GET'])
 def get_passes(status):
