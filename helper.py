@@ -117,13 +117,12 @@ def registerShop(current_shop):
     try:
         shops = mongo.db.shop
         
-        print(type(request.json["zone"]))
         id = shops.find_one_and_update({"_id":current_shop["_id"]},{"$set":{
             'name':request.json['name'],
             'phone':request.json['phone'],
             'address':request.json['address'],
-            'zone':int(request.json['zone']),
-            'type':int(request.json['type'])
+            'zone':request.json['zone'],
+            'type':request.json['type']
             }})
 
         return jsonify({'id':"shop updated",'status':201})
