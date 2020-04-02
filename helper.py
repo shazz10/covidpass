@@ -7,6 +7,7 @@ from database import mongo
 import jwt
 import datetime
 from functools import wraps
+import uuid 
 
 helper = Blueprint('helper', __name__)
 
@@ -75,7 +76,7 @@ def loginShop():
         if auth.password != PASSWORD:
             return jsonify({'id':"not authorized",'status':404})
 
-        login_shop = users.find_one({'email':auth.username})
+        login_shop = shops.find_one({'email':auth.username})
 
 
         if login_shop:
@@ -137,7 +138,12 @@ def registerShop(current_shop):
 def updateInventory(current_shop):
     try:
         shops = mongo.db.shop
-        shops.find_one_and_update({"_id":current_shop["_id"]},{"$set":{"items":request.json['items']}})
+        items = request.json['items']
+        for i in range(len(items)):
+            if "itemId" not in items[i].keys() or items[i]['itemId'] == None:
+                items[i]['itemId']=uuid.uuid1().hex
+
+        shops.find_one_and_update({"_id":current_shop["_id"]},{"$set":{"items":items}})
             
         return jsonify({'id':"inventory updated!!",'status':200})
 
@@ -145,7 +151,16 @@ def updateInventory(current_shop):
         print(e)
         return jsonify({'id':"failed",'status':500})
 
+@helper.route('/api/shop/get_inventory',methods=['GET'])
+@token_required
+def getInventory(current_shop):
+    try:
+            
+        return jsonify({'id':current_shop['items'],'status':200})
 
+    except Exception as e:
+        print(e)
+        return jsonify({'id':"failed",'status':500})
 
 
 

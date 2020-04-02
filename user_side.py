@@ -219,11 +219,8 @@ def generate_pass(current_user):
 			'status':0,
 			'uid':str(current_user['_id'])
 			})
+		
 		passes.create_index([('status',1)], name='search_status', default_language='english')
-
-		#add passenger(name,aadhar,vehicle number,reason)
-		#reason: medical , goods (please specify)
-		#approval, reason of rejection
 		
 		result=users.find_one_and_update({"_id":current_user["_id"]},{'$push':{'passes':str(id)}})
 
