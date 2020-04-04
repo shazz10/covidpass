@@ -311,6 +311,7 @@ def register_quaratine(current_user):
 			'uid':str(current_user['_id']),
 			'name':request.json['name'],
 			'address':request.json['address'],
+			'phone':request.json['phone'],
 			'location_lat':request.json['location_lat'],
 			'location_lon':request.json['location_lon'],
 			'report':[]
