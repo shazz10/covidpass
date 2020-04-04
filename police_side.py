@@ -163,7 +163,7 @@ def get_quarantine_user_report():
 
 		if quarantine_user_report:
 			quarantine_user_report["_id"]=str(quarantine_user_report["_id"])
-			return jsonify({'id':quarantine_user_report,"status":200})
+			return jsonify({'id':quarantine_user_report['report'],"status":200})
 		else:
 			return jsonify({'id':"No user found!!","status":404})
 
