@@ -43,7 +43,7 @@ def getAllItems():
     try:
         items=mongo.db.item
         output=[]
-        ItemCursor=items.find()
+        ItemCursor=items.find({})
         for item in ItemCursor:
             output.append({
                 'itemName':item['itemName'],
@@ -52,6 +52,7 @@ def getAllItems():
                 'itemQty':item['itemQty'],
                 'itemCompany':item['itemCompany'],
                 'item_add_qty':item['item_add_qty']})
+        print(output)
         return jsonify({'id':output,'status':201})
     except Exception as e:
         print(e)

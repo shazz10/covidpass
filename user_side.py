@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, send_from_directory, url_for
 from flask_pymongo import PyMongo
 import bcrypt
 import json
@@ -7,12 +7,19 @@ from database import mongo
 import jwt
 import datetime
 from functools import wraps
+import os
+import uuid
+
 
 user_side = Blueprint('user_side', __name__)
 
 SECRET_KEY = "keepitsecret!!"
 
 PASSWORD = "Nitsuvidha1!"
+
+UPLOAD_FOLDER = os.path.dirname(os.path.realpath(__file__)) + "/uploads/"
+#print(UPLOAD_FOLDER)
+
 
 zones=[
 	{"name":"All of Jamshedpur","id":0},
@@ -37,6 +44,7 @@ shop_types=[
     {"name":"Medicines","id":6},
     {"name":"Gas Station","id":7}
 ]
+
 
 def token_required(f):
 	@wraps(f)
@@ -119,6 +127,8 @@ def token_required(f):
 def glogin():
 	try:
 		users = mongo.db.user
+		quarantine = mongo.db.quarantine
+
 		auth = request.authorization
 		if not auth or not auth.username or not auth.password:
 			return jsonify({'id':"not authorized",'status':404})
@@ -131,7 +141,18 @@ def glogin():
 			login_user['_id']=str(login_user['_id'])
 			token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=7200)},SECRET_KEY)
 			login_user['token']=token.decode('UTF-8')
-			return jsonify({'id':login_user,"status":200,"zone":zones})
+
+			quarantine_user = quarantine.find_one({"uid":login_user['_id']})
+			location={
+					"location_lat":"",
+					"location_lon":""
+					}
+			if quarantine_user:
+				location['location_lat']=quarantine_user['location_lat']
+				location['location_lon']=quarantine_user['location_lon']
+
+
+			return jsonify({'id':login_user,"status":200,"zone":zones,"location":location})
 		else:
 			id=users.insert({
 				'name':request.json['name'],
@@ -149,8 +170,13 @@ def glogin():
 				'passes':[],
 				'orders':[],
 				'token':token.decode('UTF-8')
-			}
-			return jsonify({'id':login_user,"status":205,"zone":zones})
+				}
+			location={
+					"location_lat":"",
+					"location_lon":""
+					}
+			
+			return jsonify({'id':login_user,"status":205,"zone":zones,"location":location})
 	except Exception as e:
 		print(e)
 		return jsonify({'id':"failed",'status':500})
@@ -178,16 +204,27 @@ def gregister(current_user):
 		print(e)
 		return jsonify({'id':"failed",'status':500})
 
+
 @user_side.route('/api/get_essentials',methods=['GET'])
 @token_required
 def get_essentials(current_user):
 	try:
+		quarantine = mongo.db.quarantine
+
+		user = quarantine.find_one({"uid":str(current_user["_id"])})
+
+		is_quarantined=0
+		if user:
+			is_quarantined=1
+
 		essentials={
 		"delivery_cost":50,
 		"cess_rate":1.5,
 		"zones":zones,
-		"shop_types":shop_types
+		"shop_types":shop_types,
+		"is_quarantined":is_quarantined
 		}
+
 		return jsonify({'id':essentials,"status":200})
 
 	except Exception as e:
@@ -261,3 +298,61 @@ def user_passes(current_user):
 	except Exception as e:
 		print(e)
 		return jsonify({'id':"failed","status":500})
+
+
+@user_side.route('/api/register_quarantine',methods=['POST'])
+@token_required
+def register_quaratine(current_user):
+	try:
+		
+		quarantine = mongo.db.quarantine
+
+		quarantine.insert({
+			'uid':str(current_user['_id']),
+			'address':request.json['address'],
+			'location_lat':request.json['location_lat'],
+			'location_lon':request.json['location_lon'],
+			'report':[]
+			})
+		quarantine.create_index([('uid',1)], name='search_uid', default_language='english')
+
+		return jsonify({'id':"registered","status":200})
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed","status":500})
+
+
+@user_side.route('/api/report_quarantine',methods=['POST'])
+@token_required
+def report_quaratine(current_user):
+	try:
+		
+		quarantine = mongo.db.quarantine
+		quarantine_user= quarantine.find_one({"uid":str(current_user["_id"])})
+
+		filename = str(uuid.uuid4())+str(len(quarantine_user['report']))+'.txt'
+
+		with open(UPLOAD_FOLDER+filename,"w") as f:
+			f.write(request.json['img'])
+
+
+		report = {
+			"img":url_for('user_side.uploaded_file',filename=filename),
+			"location_lat":request.json['location_lat'],
+			"location_lon":request.json['location_lon'],
+			"report_time":request.json["report_time"],
+			"location_error":request.json["location_error"]
+		}
+
+		quarantine.find_one_and_update({"uid":str(current_user["_id"])},{"$push":{"report":report}})
+
+		return jsonify({'id':"reported","status":200})
+	
+	except Exception as e:
+		raise(e)
+		return jsonify({'id':"failed","status":500})
+
+
+@user_side.route('/api/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_FOLDER ,filename)

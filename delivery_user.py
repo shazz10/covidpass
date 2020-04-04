@@ -101,17 +101,18 @@ def getAllOrders(current_user):
         print(current_user["orders"])
         for oid in current_user["orders"]:
             o = orders.find_one({"_id":ObjectId(oid)})
-
+            # print(o)
             if o:
                 o["_id"]=str(o["_id"])
                 shop = shops.find_one({"_id":ObjectId(o['sid'])},
                     {"_id":1,"name":1,"email":1,"address":1,"phone":1})
-                shop["_id"]=str(shop["_id"])
+                if shop:
+                    shop["_id"]=str(shop["_id"])
                 o["shop_details"]=shop
                 output.append(o)
             else:
                 dead_orders.append(oid)
-
+        print(output)
         if len(dead_orders)>0:
             for oid in dead_orders:
                 users.find_one_and_update({"_id":current_user["_id"]},{"$pull":{'orders':oid}})

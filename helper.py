@@ -117,6 +117,7 @@ def registerShop(current_shop):
     try:
         shops = mongo.db.shop
         
+        
         id = shops.find_one_and_update({"_id":current_shop["_id"]},{"$set":{
             'name':request.json['name'],
             'phone':request.json['phone'],

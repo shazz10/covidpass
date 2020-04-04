@@ -11,6 +11,7 @@ app = Flask("__name__")
 
 app.config["MONGO_DBNAME"]="covidpass"
 app.config["MONGO_URI"]="mongodb+srv://suvidha:5IDRccWJDoZDybch@cluster0-wanjk.mongodb.net/covidpass"
+
 #username-suvidha
 #password-5IDRccWJDoZDybch
 
