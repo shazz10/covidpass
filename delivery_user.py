@@ -139,7 +139,8 @@ def get_order(current_user):
             o["_id"]=str(o["_id"])
             shop = shops.find_one({"_id":ObjectId(o['sid'])},
                     {"_id":1,"name":1,"email":1,"address":1,"phone":1})
-            shop["_id"]=str(shop["_id"])
+            if shop:
+                shop["_id"]=str(shop["_id"])
             o["shop_details"]=shop
             return jsonify({'id':o,'status':200})
         else:

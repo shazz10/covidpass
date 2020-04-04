@@ -144,8 +144,8 @@ def glogin():
 
 			quarantine_user = quarantine.find_one({"uid":login_user['_id']})
 			location={
-					"location_lat":"",
-					"location_lon":""
+					"location_lat":None,
+					"location_lon":None
 					}
 			if quarantine_user:
 				location['location_lat']=quarantine_user['location_lat']
@@ -172,8 +172,8 @@ def glogin():
 				'token':token.decode('UTF-8')
 				}
 			location={
-					"location_lat":"",
-					"location_lon":""
+					"location_lat":None,
+					"location_lon":None
 					}
 			
 			return jsonify({'id':login_user,"status":205,"zone":zones,"location":location})
