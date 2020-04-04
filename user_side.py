@@ -314,6 +314,9 @@ def register_quaratine(current_user):
 			'phone':request.json['phone'],
 			'location_lat':request.json['location_lat'],
 			'location_lon':request.json['location_lon'],
+			'authority':request.json['authority'],
+			'start_date':request.json['start_date'],
+			'end_date':request.json['end_date'],
 			'report':[]
 			})
 		quarantine.create_index([('uid',1)], name='search_uid', default_language='english')

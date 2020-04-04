@@ -138,7 +138,8 @@ def get_quarantine_users():
 
 		quarantine = mongo.db.quarantine
 
-		quarantine_users = quarantine.find({},{"_id":1,"uid":1,"name":1,"address":1,"location_lat":1,"location_lon":1,"phone":1})
+		quarantine_users = quarantine.find({},{"_id":1,"uid":1,"name":1,"address":1,"location_lat":1,"location_lon":1,"phone":1,
+												"start_date":1,"end_date":1,"authority":1})
 
 		output=[]
 		for qu in quarantine_users:
