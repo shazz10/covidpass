@@ -18,7 +18,8 @@ SECRET_KEY = "keepitsecret!!"
 PASSWORD = "Nitsuvidha1!"
 
 UPLOAD_FOLDER = os.path.dirname(os.path.realpath(__file__)) + "/uploads/"
-#print(UPLOAD_FOLDER)
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 
 zones=[
