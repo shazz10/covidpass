@@ -309,6 +309,7 @@ def register_quaratine(current_user):
 
 		quarantine.insert({
 			'uid':str(current_user['_id']),
+			'name':request.json['name'],
 			'address':request.json['address'],
 			'location_lat':request.json['location_lat'],
 			'location_lon':request.json['location_lon'],

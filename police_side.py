@@ -131,3 +131,42 @@ def get_user():
 	except Exception as e:
 		print(e)
 		return jsonify({'id':"failed",'status':500})
+
+@police_side.route('/api/police/get_quarantine_users',methods=['GET'])
+def get_quarantine_users():
+	try:
+
+		quarantine = mongo.db.quarantine
+
+		quarantine_users = quarantine.find({},{"_id":1,"uid":1,"name":1,"address":1,"location_lat":1,"location_lon":1})
+
+		output=[]
+		for qu in quarantine_users:
+			qu["_id"]=str(qu["_id"])
+			output.append(qu)
+		
+		return jsonify({'id':output,"status":200})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/get_quarantine_user_report',methods=['POST'])
+def get_quarantine_user_report():
+	try:
+
+		quarantine = mongo.db.quarantine
+
+		quarantine_user_report = quarantine.find_one({"uid":request.json["uid"]},{"report":1})
+
+		if quarantine_user_report:
+			quarantine_user_report["_id"]=str(quarantine_user_report["_id"])
+			return jsonify({'id':quarantine_user_report,"status":200})
+		else:
+			return jsonify({'id':"No user found!!","status":404})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
