@@ -303,26 +303,46 @@ def user_passes(current_user):
 
 @user_side.route('/api/register_quarantine',methods=['POST'])
 @token_required
-def register_quaratine(current_user):
+def register_quarantine(current_user):
 	try:
 		
 		quarantine = mongo.db.quarantine
+		queues = mongo.db.queue
+		polices = mongo.db.police
 
-		quarantine.insert({
-			'uid':str(current_user['_id']),
-			'name':request.json['name'],
-			'address':request.json['address'],
-			'phone':request.json['phone'],
-			'location_lat':request.json['location_lat'],
-			'location_lon':request.json['location_lon'],
-			'authority':request.json['authority'],
-			'start_date':request.json['start_date'],
-			'end_date':request.json['end_date'],
-			'report':[]
-			})
-		quarantine.create_index([('uid',1)], name='search_uid', default_language='english')
+		qu=quarantine.find_one({"uid":str(current_user["_id"])})
+		if not qu:
+			id=quarantine.insert({
+				'uid':str(current_user['_id']),
+				'name':request.json['name'],
+				'address':request.json['address'],
+				'phone':request.json['phone'],
+				'location_lat':request.json['location_lat'],
+				'location_lon':request.json['location_lon'],
+				'authority':request.json['authority'],
+				'start_date':request.json['start_date'],
+				'end_date':request.json['end_date'],
+				'report':[]
+				})
+			quarantine.create_index([('uid',1)], name='search_uid', default_language='english')
 
-		return jsonify({'id':"registered","status":200})
+			queue=queues.find()
+			for q in queue:
+				pointer = q['pointer']
+				count = q['count']
+				if count>0:
+					polices.find_one_and_update({"_id":ObjectId(q['queue'][pointer])},{"$push":{"viewing_users":str(id)}})
+					pointer+=1
+					if pointer == count:
+						pointer=0
+
+					queues.find_one_and_update({"_id":q['_id']},{"$set":{"pointer":pointer}})
+
+
+
+			return jsonify({'id':"registered","status":200})
+		else:
+			return jsonify({'id':"user exists!!","status":205})
 	except Exception as e:
 		print(e)
 		return jsonify({'id':"failed","status":500})
@@ -330,7 +350,7 @@ def register_quaratine(current_user):
 
 @user_side.route('/api/report_quarantine',methods=['POST'])
 @token_required
-def report_quaratine(current_user):
+def report_quarantine(current_user):
 	try:
 		
 		quarantine = mongo.db.quarantine
@@ -342,11 +362,13 @@ def report_quaratine(current_user):
 			f.write(request.json['img'])
 
 
+		time = datetime.datetime.utcnow() + datetime.timedelta(minutes=330)
+		time = str(time).split('.')[0]
 		report = {
 			"img":url_for('user_side.uploaded_file',filename=filename),
 			"location_lat":request.json['location_lat'],
 			"location_lon":request.json['location_lon'],
-			"report_time":request.json["report_time"],
+			"report_time":time,
 			"location_error":request.json["location_error"]
 		}
 
@@ -367,7 +389,7 @@ def uploaded_file(filename):
 
 @user_side.route('/api/get_user_report',methods=['GET'])
 @token_required
-def get_report_quaratine(current_user):
+def get_report_quarantine(current_user):
 	try:
 		
 		quarantine = mongo.db.quarantine
@@ -376,7 +398,7 @@ def get_report_quaratine(current_user):
 		if quarantine_user:
 			return jsonify({'id':quarantine_user["report"],"status":200})
 		else:
-			return jsonify({'id':"user not present","status":200})
+			return jsonify({'id':"user not present","status":400})
 	
 	except Exception as e:
 		raise(e)

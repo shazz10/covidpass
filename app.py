@@ -55,5 +55,10 @@ app.register_blueprint(delivery_shopper)
 
 #delivery_shopper usecases ends
 
+#make queue
+queue = mongo.db.queue
+if queue.count() == 0:
+	queue.insert({'queue':[],'count':0,'pointer':0})
+
 if __name__ == '__main__':
 	app.run(host='0.0.0.0',port=os.environ.get('PORT', '5000'),debug=True)

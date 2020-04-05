@@ -12,13 +12,36 @@ police_side = Blueprint('police_side', __name__)
 
 SECRET_KEY = "keepitsecret!!"
 
+def token_required(f):
+	@wraps(f)
+	def decorator(*args,**kwargs):
 
+		token=None
+		polices = mongo.db.police
+
+		if 'x-access-tokens' in request.headers:
+			token = request.headers['x-access-tokens']
+
+		if not token:
+			return jsonify({'id':'a valid token is missing','status':303})
+
+		try:
+			data = jwt.decode(token,SECRET_KEY)
+			police = polices.find_one({"_id":ObjectId(data['pid'])})
+
+		except Exception as e:
+			return jsonify({"id":"token is invalid!!","status":302}) 
+
+		return f(police,*args,**kwargs)
+
+	return decorator
 
 @police_side.route('/api/register_police',methods=['POST'])
 def register():
 	try:
 
 		polices = mongo.db.police
+		queues = mongo.db.queue
 		existing_police = polices.find_one({'email':request.json['email']})
 
 		if existing_police is None:
@@ -27,8 +50,12 @@ def register():
 				'name':request.json['name'],
 				'email':request.json['email'],
 				'phone':request.json['phone'],
-				'password':hashpass
+				'password':hashpass,
+				'viewing_users':[]
 				})
+			queue=queues.find()
+			for q in queue:
+				queues.find_one_and_update({"_id":q["_id"]},{"$push":{"queue":str(id)} ,"$inc":{"count":1}})
 
 			return jsonify({'id':str(id),'status':201})
 		else:
@@ -49,10 +76,13 @@ def login():
 		if login_police:
 			if login_police['password'] == bcrypt.hashpw(request.json['password'].encode('utf-8'),login_police['password']):
 				login_police['_id']=str(login_police['_id'])
-				token = jwt.encode({'uid':login_police['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=720)},SECRET_KEY)
-				login_police['token']=token.decode('UTF-8')
 				del login_police['password']
-				return jsonify({'id':login_police,"status":200})
+				del login_police['viewing_users']
+
+				token = jwt.encode({'pid':login_police['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=1400)},SECRET_KEY)
+				token = token.decode('UTF-8')
+
+				return jsonify({'id':login_police,"status":200,"token":token})
 			else:
 				return jsonify({'id':"password wrong","status":404})
 		else:
@@ -64,6 +94,7 @@ def login():
 
 
 @police_side.route('/api/police/get_passes/<status>',methods=['GET'])
+@token_required
 def get_passes(status):
 	try:
 		passes = mongo.db.passes
@@ -80,6 +111,7 @@ def get_passes(status):
 
 
 @police_side.route('/api/police/get_pass',methods=['POST'])
+@token_required
 def get_pass():
 	try:
 		passes = mongo.db.passes
@@ -98,6 +130,7 @@ def get_pass():
 
 
 @police_side.route('/api/police/validate_pass',methods=['PUT'])
+@token_required
 def validate_pass():
 	try:
 		passes = mongo.db.passes
@@ -116,6 +149,7 @@ def validate_pass():
 
 
 @police_side.route('/api/police/get_user',methods=['POST'])
+@token_required
 def get_user():
 	try:
 		users = mongo.db.user
@@ -132,19 +166,21 @@ def get_user():
 		print(e)
 		return jsonify({'id':"failed",'status':500})
 
+
+
 @police_side.route('/api/police/get_quarantine_users',methods=['GET'])
-def get_quarantine_users():
+@token_required
+def get_quarantine_users(current_user):
 	try:
 
 		quarantine = mongo.db.quarantine
-
-		quarantine_users = quarantine.find({},{"_id":1,"uid":1,"name":1,"address":1,"location_lat":1,"location_lon":1,"phone":1,
-												"start_date":1,"end_date":1,"authority":1})
-
 		output=[]
-		for qu in quarantine_users:
-			qu["_id"]=str(qu["_id"])
-			output.append(qu)
+		for id in current_user['viewing_users']:
+			qu = quarantine.find_one({"_id":ObjectId(id)},{"_id":1,"uid":1,"name":1,"address":1,"location_lat":1,"location_lon":1,"phone":1,
+												"start_date":1,"end_date":1,"authority":1})
+			if qu:
+				qu["_id"]=str(qu["_id"])
+				output.append(qu)
 		
 		return jsonify({'id':output,"status":200})
 
@@ -154,7 +190,8 @@ def get_quarantine_users():
 
 
 @police_side.route('/api/police/get_quarantine_user_report',methods=['POST'])
-def get_quarantine_user_report():
+@token_required
+def get_quarantine_user_report(current_user):
 	try:
 
 		quarantine = mongo.db.quarantine
@@ -162,7 +199,6 @@ def get_quarantine_user_report():
 		quarantine_user_report = quarantine.find_one({"uid":request.json["uid"]},{"report":1})
 
 		if quarantine_user_report:
-			quarantine_user_report["_id"]=str(quarantine_user_report["_id"])
 			return jsonify({'id':quarantine_user_report['report'],"status":200})
 		else:
 			return jsonify({'id':"No user found!!","status":404})
