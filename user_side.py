@@ -362,3 +362,22 @@ def report_quaratine(current_user):
 @user_side.route('/api/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER ,filename)
+
+
+
+@user_side.route('/api/get_user_report',methods=['GET'])
+@token_required
+def get_report_quaratine(current_user):
+	try:
+		
+		quarantine = mongo.db.quarantine
+		quarantine_user= quarantine.find_one({"uid":str(current_user["_id"])})
+
+		if quarantine_user:
+			return jsonify({'id':quarantine_user["report"],"status":200})
+		else:
+			return jsonify({'id':"user not present","status":200})
+	
+	except Exception as e:
+		raise(e)
+		return jsonify({'id':"failed","status":500})

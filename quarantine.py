@@ -1,18 +1,2 @@
-from flask import Blueprint, request, jsonify, session
-from flask_pymongo import PyMongo
-import bcrypt
-import json
-from bson.objectid import ObjectId
-from database import mongo
-import jwt
-import datetime
-from functools import wraps
-
-quarantine = Blueprint('quarantine', __name__)
-
-SECRET_KEY = "keepitsecret!!"
-
-
-
-
+docker run -d -p 5000:5000 -v /root/uploads/:/api/uploads suvidha-api:v1
 
