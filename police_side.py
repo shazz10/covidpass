@@ -50,10 +50,16 @@ def register():
 				'name':request.json['name'],
 				'email':request.json['email'],
 				'phone':request.json['phone'],
+				'district':request.json['district'],
+				'state':request.json['state'],
 				'password':hashpass,
 				'viewing_users':[]
 				})
-			queue=queues.find()
+
+			if not queue.find_one({"district":request.json['district']}):
+				queue.insert({'queue':[],'count':0,'pointer':0,'district':request.json['district']})
+			#polices.create_index([('district',1)], name='search_district', default_language='english')
+			queue=queues.find_one({"district":request.json['district']})
 			for q in queue:
 				queues.find_one_and_update({"_id":q["_id"]},{"$push":{"queue":str(id)} ,"$inc":{"count":1}})
 
@@ -175,10 +181,13 @@ def get_quarantine_users(current_user):
 		quarantine = mongo.db.quarantine
 		output=[]
 		for id in current_user['viewing_users']:
-			qu = quarantine.find_one({"_id":ObjectId(id)},{"_id":1,"uid":1,"name":1,"address":1,"location_lat":1,"location_lon":1,"phone":1,
-												"start_date":1,"end_date":1,"authority":1})
+			qu = quarantine.find_one({"_id":ObjectId(id)},{"_id":1,"uid":1,"name":1,"address":1,"location":1,"phone":1,
+												"start_date":1,"end_date":1,"authority":1,"state":1,"district":1})
 			if qu:
 				qu["_id"]=str(qu["_id"])
+				qu["location_lat"]=qu["location"]["coordinates"][0]
+				qu["location_lon"]=qu["location"]["coordinates"][1]
+				del qu["location"]
 				output.append(qu)
 		
 		return jsonify({'id':output,"status":200})
@@ -197,6 +206,23 @@ def get_quarantine_user_report(current_user):
 
 		if quarantine_user_report:
 			return jsonify({'id':quarantine_user_report['report'],"status":200})
+		else:
+			return jsonify({'id':"No user found!!","status":404})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/get_quarantine_user_violation',methods=['POST'])
+@token_required
+def get_quarantine_user_violation(current_user):
+	try:
+		quarantine = mongo.db.quarantine
+		quarantine_user_violation = quarantine.find_one({"uid":request.json["uid"]},{"violations":1})
+
+		if quarantine_user_report:
+			return jsonify({'id':quarantine_user_report['violations'],"status":200})
 		else:
 			return jsonify({'id':"No user found!!","status":404})
 

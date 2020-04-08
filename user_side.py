@@ -195,6 +195,8 @@ def gregister(current_user):
 			'phone':request.json['phone'],
 			'address':request.json['address'],
 			'zone':request.json['zone'],
+			'state':request.json['state'],
+			'district':request.json['district']
 			}})
 
 
@@ -316,27 +318,30 @@ def register_quarantine(current_user):
 				'uid':str(current_user['_id']),
 				'name':request.json['name'],
 				'address':request.json['address'],
+				'state':request.json['state'],
+				'district':request.json['district'],
 				'phone':request.json['phone'],
-				'location_lat':request.json['location_lat'],
-				'location_lon':request.json['location_lon'],
+				'location':{"type":"Point","coordinates":[request.json['location_lat'],request.json['location_lon']]},
 				'authority':request.json['authority'],
 				'start_date':request.json['start_date'],
 				'end_date':request.json['end_date'],
-				'report':[]
+				'report':[],
+				'violations':[]
 				})
 			quarantine.create_index([('uid',1)], name='search_uid', default_language='english')
+			quarantine.create_index([('location',"2dsphere")], name='search_location', default_language='english')
 
-			queue=queues.find()
-			for q in queue:
-				pointer = q['pointer']
-				count = q['count']
-				if count>0:
-					polices.find_one_and_update({"_id":ObjectId(q['queue'][pointer])},{"$push":{"viewing_users":str(id)}})
-					pointer+=1
-					if pointer == count:
-						pointer=0
+			q=queues.find_one({"district":request.json['district']})
+			
+			pointer = q['pointer']
+			count = q['count']
+			if count>0:
+				polices.find_one_and_update({"_id":ObjectId(q['queue'][pointer])},{"$push":{"viewing_users":str(id)}})
+				pointer+=1
+				if pointer == count:
+					pointer=0
 
-					queues.find_one_and_update({"_id":q['_id']},{"$set":{"pointer":pointer}})
+				queues.find_one_and_update({"_id":q['_id']},{"$set":{"pointer":pointer}})
 
 
 
@@ -401,6 +406,64 @@ def get_report_quarantine(current_user):
 			return jsonify({'id':quarantine_user["report"],"status":200})
 		else:
 			return jsonify({'id':"user not present","status":400})
+	
+	except Exception as e:
+		raise(e)
+		return jsonify({'id':"failed","status":500})
+
+
+
+@user_side.route('/api/report_violation',methods=['POST'])
+@token_required
+def report_violation(current_user):
+	try:
+		
+		quarantine = mongo.db.quarantine
+
+		time = datetime.datetime.utcnow()
+		time+= datetime.timedelta(minutes=330)
+		time = str(time).split('.')[0]
+		
+		violation = {
+			"location_lat":request.json['location_lat'],
+			"location_lon":request.json['location_lon'],
+			"report_time":time,
+		}
+
+		quarantine.find_one_and_update({"uid":str(current_user["_id"])},{"$push":{"violations":violation}})
+
+		return jsonify({'id':"reported","status":200})
+	
+	except Exception as e:
+		raise(e)
+		return jsonify({'id':"failed","status":500})
+
+
+@user_side.route('/api/get_quarantine_near',methods=['POST'])
+@token_required
+def get_quarantine_near(current_user):
+	try:
+		
+		quarantine = mongo.db.quarantine
+
+		q_users = quarantine.find({"location":{"$near":
+												{
+													"$geometry":
+														{
+														 "type":"Point",
+														 "coordinates":[request.json["location_lat"],request.json["location_lon"]]
+														},
+													"$maxDistance": 500,
+												}, 
+											  }
+									})
+
+		count=0
+		for q in q_users:
+			count+=1
+		
+
+		return jsonify({'id':count,"status":200})
 	
 	except Exception as e:
 		raise(e)
