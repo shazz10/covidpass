@@ -221,8 +221,8 @@ def get_quarantine_user_violation(current_user):
 		quarantine = mongo.db.quarantine
 		quarantine_user_violation = quarantine.find_one({"uid":request.json["uid"]},{"violations":1})
 
-		if quarantine_user_report:
-			return jsonify({'id':quarantine_user_report['violations'],"status":200})
+		if quarantine_user_violation:
+			return jsonify({'id':quarantine_user_violation['violations'],"status":200})
 		else:
 			return jsonify({'id':"No user found!!","status":404})
 
