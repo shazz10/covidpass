@@ -140,7 +140,7 @@ def glogin():
 
 		if login_user:
 			login_user['_id']=str(login_user['_id'])
-			token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=7200)},SECRET_KEY)
+			token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=28800)},SECRET_KEY)
 			login_user['token']=token.decode('UTF-8')
 
 			quarantine_user = quarantine.find_one({"uid":login_user['_id']})
@@ -163,7 +163,7 @@ def glogin():
 				})
 			
 			users.create_index([('email',1)], name='search_email', default_language='english')
-			token = jwt.encode({'uid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=7200)},SECRET_KEY)
+			token = jwt.encode({'uid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=28800)},SECRET_KEY)
 			login_user={
 				'_id':str(id),
 				'name':request.json['name'],
@@ -362,8 +362,10 @@ def report_quarantine(current_user):
 			f.write(request.json['img'])
 
 
-		time = datetime.datetime.utcnow() + datetime.timedelta(minutes=330)
+		time = datetime.datetime.utcnow()
+		time+= datetime.timedelta(minutes=330)
 		time = str(time).split('.')[0]
+		
 		report = {
 			"img":url_for('user_side.uploaded_file',filename=filename),
 			"location_lat":request.json['location_lat'],

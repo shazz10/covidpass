@@ -79,7 +79,7 @@ def login():
 				del login_police['password']
 				del login_police['viewing_users']
 
-				token = jwt.encode({'pid':login_police['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=1400)},SECRET_KEY)
+				token = jwt.encode({'pid':login_police['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=28800)},SECRET_KEY)
 				token = token.decode('UTF-8')
 
 				return jsonify({'id':login_police,"status":200,"token":token})
@@ -172,7 +172,6 @@ def get_user():
 @token_required
 def get_quarantine_users(current_user):
 	try:
-
 		quarantine = mongo.db.quarantine
 		output=[]
 		for id in current_user['viewing_users']:
@@ -193,9 +192,7 @@ def get_quarantine_users(current_user):
 @token_required
 def get_quarantine_user_report(current_user):
 	try:
-
 		quarantine = mongo.db.quarantine
-
 		quarantine_user_report = quarantine.find_one({"uid":request.json["uid"]},{"report":1})
 
 		if quarantine_user_report:
