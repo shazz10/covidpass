@@ -56,12 +56,12 @@ def register():
 				'viewing_users':[]
 				})
 
-			if not queue.find_one({"district":request.json['district']}):
-				queue.insert({'queue':[],'count':0,'pointer':0,'district':request.json['district']})
+			if not queues.find_one({"district":request.json['district']}):
+				queues.insert({'queue':[],'count':0,'pointer':0,'district':request.json['district']})
 			#polices.create_index([('district',1)], name='search_district', default_language='english')
-			queue=queues.find_one({"district":request.json['district']})
-			for q in queue:
-				queues.find_one_and_update({"_id":q["_id"]},{"$push":{"queue":str(id)} ,"$inc":{"count":1}})
+			queue=queues.find_one_and_update({"district":request.json['district']},{"$push":{"queue":str(id)} ,"$inc":{"count":1}})
+			
+			#queues.find_one_and_update({"_id":q["_id"]},{"$push":{"queue":str(id)} ,"$inc":{"count":1}})
 
 			return jsonify({'id':str(id),'status':201})
 		else:

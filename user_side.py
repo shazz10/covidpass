@@ -149,8 +149,8 @@ def glogin():
 					"location_lon":None
 					}
 			if quarantine_user:
-				location['location_lat']=quarantine_user['location_lat']
-				location['location_lon']=quarantine_user['location_lon']
+				location['location_lat']=quarantine_user['location']['coordinates'][0]
+				location['location_lon']=quarantine_user['location']['coordinates'][1]
 
 
 			return jsonify({'id':login_user,"status":200,"zone":zones,"location":location})
@@ -179,7 +179,7 @@ def glogin():
 			
 			return jsonify({'id':login_user,"status":205,"zone":zones,"location":location})
 	except Exception as e:
-		print(e)
+		raise(e)
 		return jsonify({'id':"failed",'status':500})
 
 
