@@ -10,10 +10,9 @@ app = Flask("__name__")
 #database config starts
 
 app.config["MONGO_DBNAME"]="covidpass"
-app.config["MONGO_URI"]="mongodb+srv://suvidha:5IDRccWJDoZDybch@cluster0-wanjk.mongodb.net/covidpass"
-
-#username-suvidha
-#password-5IDRccWJDoZDybch
+app.config["MONGO_URI"]="mongodb+srv://saanayy:COVID19token-gen@token-gen-wiy46.mongodb.net/covidpass"
+#username-saanayy
+#password-COVID19token-gen
 
 mongo.init_app(app)
 
