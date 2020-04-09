@@ -402,8 +402,18 @@ def get_report_quarantine(current_user):
 		quarantine = mongo.db.quarantine
 		quarantine_user= quarantine.find_one({"uid":str(current_user["_id"])})
 
+		
+
+		time = datetime.datetime.utcnow()
+		time+= datetime.timedelta(minutes=330)
+		time = str(time).split(' ')[0]
+		time = datetime.datetime.strptime(time,"%Y-%m-%d")
+
 		if quarantine_user:
-			return jsonify({'id':quarantine_user["report"],"status":200})
+			end = quarantine_user['end_date']
+			end = datetime.datetime.strptime(end,"%d/%m/%Y")
+			left = (end-time).days
+			return jsonify({'id':quarantine_user["report"],"status":200,"left":left})
 		else:
 			return jsonify({'id':"user not present","status":400})
 	
@@ -468,3 +478,4 @@ def get_quarantine_near(current_user):
 	except Exception as e:
 		raise(e)
 		return jsonify({'id':"failed","status":500})
+
