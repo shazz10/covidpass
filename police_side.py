@@ -267,3 +267,44 @@ def get_quarantine_user_violation(current_user):
 		print(e)
 		return jsonify({'id':"failed",'status':500})
 
+
+@police_side.route('/api/police/update_quarantine_user',methods=['POST'])
+@token_required
+def update_quarantine_user(current_user):
+	try:
+		quarantine = mongo.db.quarantine
+
+		qid = request.json['qid']
+		end_date = request.json['end_date']
+		
+		quarantine.find_one_and_update({"_id":ObjectId(qid)},{"$set":{"end_date":end_date}})
+
+		return jsonify({'id':"quarantine user removed!!","status":200})
+		
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/delete_quarantine_user',methods=['POST'])
+@token_required
+def delete_quarantine_user(current_user):
+	try:
+		police = mongo.db.police
+
+		qid = request.json['qid']
+		type = request.json['type']
+		
+		if type==1:
+			police.find_one_and_update({"_id":current_user["_id"]},{"$pull":{"viewing_users_q":qid}})
+		else:
+			police.find_one_and_update({"_id":current_user["_id"]},{"$pull":{"viewing_users_s":qid}})
+
+		return jsonify({'id':"quarantine user removed!!","status":200})
+		
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
