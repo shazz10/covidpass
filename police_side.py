@@ -42,6 +42,8 @@ def register():
 
 		polices = mongo.db.police
 		queues = mongo.db.queue
+		support = mongo.db.support
+
 		existing_police = polices.find_one({'email':request.json['email']})
 
 		if existing_police is None:
@@ -53,15 +55,42 @@ def register():
 				'district':request.json['district'],
 				'state':request.json['state'],
 				'password':hashpass,
-				'viewing_users':[]
+				'is_quarantine':request.json['is_quarantine'],
+				'is_pass':request.json['is_pass'],
+				'is_ngo':request.json["is_ngo"],
+				'is_shopper':request.json["is_shopper"],
+				'viewing_users_q':[],
+				'viewing_users_s':[]
 				})
 
-			if not queues.find_one({"district":request.json['district']}):
-				queues.insert({'queue':[],'count':0,'pointer':0,'district':request.json['district']})
-			#polices.create_index([('district',1)], name='search_district', default_language='english')
-			queue=queues.find_one_and_update({"district":request.json['district']},{"$push":{"queue":str(id)} ,"$inc":{"count":1}})
+			if request.json['is_quarantine']==1:
+				if not queues.find_one({"state":request.json['state'],"district":request.json['district']}):
+					queues.insert({'queue':[],'count':0,'pointer':0,'district':request.json['district'],"state":request.json['state']})
+				#polices.create_index([('district',1)], name='search_district', default_language='english')
+				queue=queues.find_one_and_update({"state":request.json['state'],"district":request.json['district']},{"$push":{"queue":str(id)} ,"$inc":{"count":1}})
 			
 			#queues.find_one_and_update({"_id":q["_id"]},{"$push":{"queue":str(id)} ,"$inc":{"count":1}})
+			s=support.find_one({"state":request.json['state'],"district":request.json['district']})
+			if not s:
+				support.insert({
+						"state":request.json['state'],
+						"district":request.json['district'],
+						'is_quarantine':request.json['is_quarantine'],
+						'is_pass':request.json['is_pass'],
+						'is_ngo':request.json["is_ngo"],
+						'is_shopper':request.json["is_shopper"]
+					})
+			else:
+				update={}
+				if s['is_quarantine']==0 and request.json['is_quarantine']==1:
+					update["is_quarantine"]=1
+				if s['is_pass']==0 and request.json['is_pass']==1:
+					update["is_pass"]=1
+				if s['is_ngo']==0 and request.json['is_ngo']==1:
+					update["is_ngo"]=1
+				if s['is_shopper']==0 and request.json['is_shopper']==1:
+					update["is_shopper"]=1
+				support.find_one_and_update({"_id":s["_id"]},{"$set":update})
 
 			return jsonify({'id':str(id),'status':201})
 		else:
@@ -83,7 +112,8 @@ def login():
 			if login_police['password'] == bcrypt.hashpw(request.json['password'].encode('utf-8'),login_police['password']):
 				login_police['_id']=str(login_police['_id'])
 				del login_police['password']
-				del login_police['viewing_users']
+				del login_police['viewing_users_q']
+				del login_police['viewing_users_s']
 
 				token = jwt.encode({'pid':login_police['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=28800)},SECRET_KEY)
 				token = token.decode('UTF-8')
@@ -174,13 +204,20 @@ def get_user():
 
 
 
-@police_side.route('/api/police/get_quarantine_users',methods=['GET'])
+@police_side.route('/api/police/get_quarantine_users/<type>',methods=['GET'])
 @token_required
 def get_quarantine_users(current_user):
 	try:
 		quarantine = mongo.db.quarantine
 		output=[]
-		for id in current_user['viewing_users']:
+
+		view=""
+		if int(type)==1:
+			view="viewing_users_q"
+		else:
+			view="viewing_users_s"
+
+		for id in current_user[view]:
 			qu = quarantine.find_one({"_id":ObjectId(id)},{"_id":1,"uid":1,"name":1,"address":1,"location":1,"phone":1,
 												"start_date":1,"end_date":1,"authority":1,"state":1,"district":1})
 			if qu:

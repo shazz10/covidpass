@@ -314,7 +314,7 @@ def register_quarantine(current_user):
 
 		qu=quarantine.find_one({"uid":str(current_user["_id"])})
 		if not qu:
-			id=quarantine.insert({
+			data = {
 				'uid':str(current_user['_id']),
 				'name':request.json['name'],
 				'address':request.json['address'],
@@ -325,9 +325,11 @@ def register_quarantine(current_user):
 				'authority':request.json['authority'],
 				'start_date':request.json['start_date'],
 				'end_date':request.json['end_date'],
+				'type':request.json['type'],
 				'report':[],
 				'violations':[]
-				})
+				}
+			id=quarantine.insert(data)
 			quarantine.create_index([('uid',1)], name='search_uid', default_language='english')
 			quarantine.create_index([('location',"2dsphere")], name='search_location', default_language='english')
 
@@ -336,7 +338,10 @@ def register_quarantine(current_user):
 			pointer = q['pointer']
 			count = q['count']
 			if count>0:
-				polices.find_one_and_update({"_id":ObjectId(q['queue'][pointer])},{"$push":{"viewing_users":str(id)}})
+				if data['type']==1:
+					polices.find_one_and_update({"_id":ObjectId(q['queue'][pointer])},{"$push":{"viewing_users_q":str(id)}})
+				else:
+					polices.find_one_and_update({"_id":ObjectId(q['queue'][pointer])},{"$push":{"viewing_users_s":str(id)}})
 				pointer+=1
 				if pointer == count:
 					pointer=0
