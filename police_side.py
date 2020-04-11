@@ -207,6 +207,7 @@ def get_user():
 @police_side.route('/api/police/get_quarantine_users/<type>',methods=['GET'])
 @token_required
 def get_quarantine_users(current_user,type):
+
 	try:
 		quarantine = mongo.db.quarantine
 		output=[]
@@ -296,7 +297,8 @@ def delete_quarantine_user(current_user):
 		history_quarantine = mongo.db.history_quarantine 
 
 		qid = request.json['qid']
-		type = int(request.json['type'])
+
+		type = (int)(request.json['type'])
 		
 		if type==1:
 			police.find_one_and_update({"_id":current_user["_id"]},{"$pull":{"viewing_users_q":qid}})
