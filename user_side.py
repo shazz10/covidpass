@@ -216,8 +216,10 @@ def get_essentials(current_user):
 		support = mongo.db.support
 
 		user = quarantine.find_one({"uid":str(current_user["_id"])})
-		s = support.find_one({"state":current_user["state"],"district":current_user['district']})
 
+		print(current_user["state"],current_user['district'])
+		s = support.find_one({"state":current_user["state"],"district":current_user['district']})
+		del s["_id"]
 		is_quarantined=0
 		if user:
 			is_quarantined=1
