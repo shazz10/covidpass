@@ -213,19 +213,22 @@ def gregister(current_user):
 def get_essentials(current_user):
 	try:
 		quarantine = mongo.db.quarantine
+		support = mongo.db.support
 
 		user = quarantine.find_one({"uid":str(current_user["_id"])})
+		s = support.find_one({"state":current_user["state"],"district":current_user['district']})
 
 		is_quarantined=0
 		if user:
 			is_quarantined=1
 
+
+
 		essentials={
 		"delivery_cost":50,
-		"cess_rate":1.5,
-		"zones":zones,
-		"shop_types":shop_types,
-		"is_quarantined":is_quarantined
+		"cess_rate":0.99,
+		"is_quarantined":is_quarantined,
+		"support":s
 		}
 
 		return jsonify({'id':essentials,"status":200})
