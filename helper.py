@@ -122,6 +122,9 @@ def registerShop(current_shop):
             'name':request.json['name'],
             'phone':request.json['phone'],
             'address':request.json['address'],
+            'state':request.json['state'],
+            'district':request.json['district'],
+            'city':request.json['city'],
             'zone':request.json['zone'],
             'type':request.json['type']
             }})

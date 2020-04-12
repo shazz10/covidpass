@@ -320,3 +320,94 @@ def delete_quarantine_user(current_user):
 		print(e)
 		return jsonify({'id':"failed",'status':500})
 
+
+@police_side.route('/api/police/register_ngo',methods=['POST'])
+@token_required
+def register_ngo(current_user):
+	try:
+		
+		ngo = mongo.db.ngo
+		
+		data = {
+			"name":request.json["name"],
+			"state":request.json["state"],
+			"district":request.json["district"],
+			"director_name":request.json["director_name"],
+			"phone_number":request.json["phone_number"],
+			"activities":[]
+			
+		}
+		ngo.insert(data)
+
+		return jsonify({'id':"ngo inserted!!","status":201})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/get_ngo_list',methods=['GET'])
+@token_required
+def get_ngo_list(current_user):
+	try:
+		
+		ngo = mongo.db.ngo
+		
+		ngos = ngo.find({"state":current_user["state"],"district":current_user["district"]},{"_id":1,"name":1,"phone_number":1,"director_name":1})
+
+		output=[]
+		for n in ngos:
+			if n:
+				n["_id"] = str(n["_id"])
+				output.append(n)
+			
+		return jsonify({'id':output,"status":200})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/register_ngo_activity',methods=['POST'])
+@token_required
+def register_ngo_activity(current_user):
+	try:
+		
+		ngo = mongo.db.ngo
+		
+
+
+		data = {
+			"time":request.json["time"],
+			"date":request.json["date"],
+			"city":request.json["city"],
+			"address":request.json["address"],
+			"lat":request.json["lat"],
+			"lon":request.json["lon"]
+			
+		}
+
+		ngo.find_one_and_update({"_id":ObjectId(request.json["nid"])},{"$push":{"activities":data}})
+
+		return jsonify({'id':"ngo activity inserted!!","status":201})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+		
+
+@police_side.route('/api/police/get_ngo_activities',methods=['POST'])
+@token_required
+def get_ngo_activities(current_user):
+	try:
+		
+		ngo = mongo.db.ngo
+		
+		n = ngo.find_one({"_id":ObjectId(request.json["nid"])},{"activities":1})
+
+		
+		return jsonify({'id':n["activities"],"status":200})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
