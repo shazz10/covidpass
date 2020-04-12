@@ -330,8 +330,8 @@ def register_ngo(current_user):
 		
 		data = {
 			"name":request.json["name"],
-			"state":request.json["state"],
-			"district":request.json["district"],
+			"state":current_user["state"],
+			"district":current_user["district"],
 			"director_name":request.json["director_name"],
 			"phone_number":request.json["phone_number"],
 			"activities":[]
@@ -374,17 +374,13 @@ def register_ngo_activity(current_user):
 	try:
 		
 		ngo = mongo.db.ngo
-		
-
 
 		data = {
-			"time":request.json["time"],
-			"date":request.json["date"],
+			"datetime":request.json["datetime"],
 			"city":request.json["city"],
 			"address":request.json["address"],
 			"lat":request.json["lat"],
 			"lon":request.json["lon"]
-			
 		}
 
 		ngo.find_one_and_update({"_id":ObjectId(request.json["nid"])},{"$push":{"activities":data}})

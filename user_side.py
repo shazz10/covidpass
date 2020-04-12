@@ -496,3 +496,25 @@ def get_quarantine_near(current_user):
 		raise(e)
 		return jsonify({'id':"failed","status":500})
 
+
+@user_side.route('/api/get_ngo_list',methods=['GET'])
+@token_required
+def get_ngo_list(current_user):
+	try:
+		
+		ngo = mongo.db.ngo
+
+		ngos = ngo.find({"state":current_user["state"],"district":current_user["district"]},{"_id":1,"name":1,"phone_number":1,"activities":1})		
+		output=[]
+		for n in ngos:
+			if n:
+				del n["_id"]
+				output.append(n)
+
+		return jsonify({'id':output,"status":200})
+	
+	except Exception as e:
+		raise(e)
+		return jsonify({'id':"failed","status":500})
+
+
