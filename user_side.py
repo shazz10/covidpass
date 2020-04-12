@@ -214,10 +214,10 @@ def get_essentials(current_user):
 	try:
 		quarantine = mongo.db.quarantine
 		support = mongo.db.support
+		info = mongo.db.info
 
 		user = quarantine.find_one({"uid":str(current_user["_id"])})
 
-		print(current_user["state"],current_user['district'])
 		s = support.find_one({"state":current_user["state"],"district":current_user['district']})
 		del s["_id"]
 		is_quarantined=0
@@ -225,18 +225,20 @@ def get_essentials(current_user):
 			is_quarantined=1
 
 
+		i = info.find_one({"state":current_user["state"],"district":current_user["district"]})
 
 		essentials={
 		"delivery_cost":50,
 		"cess_rate":0.99,
 		"is_quarantined":is_quarantined,
-		"support":s
+		"support":s,
+		"emergency_contact":i["emergency_contact"]
 		}
 
 		return jsonify({'id':essentials,"status":200})
 
 	except Exception as e:
-		print(e)
+		raise(e)
 		return jsonify({'id':"failed",'status':500})
 
 
