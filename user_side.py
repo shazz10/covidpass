@@ -22,29 +22,29 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 
-zones=[
-	{"name":"All of Jamshedpur","id":0},
-	{"name":"Mango","id":1},
-	{"name":"Kadma","id":2},
-	{"name":"Sonari","id":3},
-	{"name":"Bistupur","id":4},
-	{"name":"Sakchi","id":5},
-	{"name":"Golmuri","id":6},
-	{"name":"Jugsalai","id":7},
-	{"name":"Burma Mines","id":8},
-	{"name":"Telco","id":9},
-	{"name":"Parsudih","id":10}
-]
+# zones=[
+# 	{"name":"All of Jamshedpur","id":0},
+# 	{"name":"Mango","id":1},
+# 	{"name":"Kadma","id":2},
+# 	{"name":"Sonari","id":3},
+# 	{"name":"Bistupur","id":4},
+# 	{"name":"Sakchi","id":5},
+# 	{"name":"Golmuri","id":6},
+# 	{"name":"Jugsalai","id":7},
+# 	{"name":"Burma Mines","id":8},
+# 	{"name":"Telco","id":9},
+# 	{"name":"Parsudih","id":10}
+# ]
 
-shop_types=[
-    {"name":"Essentials","id":1},
-    {"name":"Milk","id":2},
-    {"name":"Bread","id":3},
-    {"name":"Baby-Essentials","id":4},
-    {"name":"Fruits & Vegetable","id":5},
-    {"name":"Medicines","id":6},
-    {"name":"Gas Station","id":7}
-]
+# shop_types=[
+#     {"name":"Essentials","id":1},
+#     {"name":"Milk","id":2},
+#     {"name":"Bread","id":3},
+#     {"name":"Baby-Essentials","id":4},
+#     {"name":"Fruits & Vegetable","id":5},
+#     {"name":"Medicines","id":6},
+#     {"name":"Gas Station","id":7}
+# ]
 
 
 def token_required(f):
@@ -129,6 +129,7 @@ def glogin():
 	try:
 		users = mongo.db.user
 		quarantine = mongo.db.quarantine
+		support = mongo.db.support
 
 		auth = request.authorization
 		if not auth or not auth.username or not auth.password:
@@ -137,6 +138,11 @@ def glogin():
 			return jsonify({'id':"not authorized",'status':404})
 
 		login_user = users.find_one({'email':auth.username})
+
+		supports = support.find({})
+		zones=[]
+		for s in supports:
+			zones.append({"state":s["state"],"district":s["district"]})
 
 		if login_user:
 			login_user['_id']=str(login_user['_id'])
@@ -153,7 +159,7 @@ def glogin():
 				location['location_lon']=quarantine_user['location']['coordinates'][1]
 
 
-			return jsonify({'id':login_user,"status":200,"zone":zones,"location":location})
+			return jsonify({'id':login_user,"status":200,"available":zones,"location":location})
 		else:
 			id=users.insert({
 				'name':request.json['name'],
@@ -177,7 +183,7 @@ def glogin():
 					"location_lon":None
 					}
 			
-			return jsonify({'id':login_user,"status":205,"zone":zones,"location":location})
+			return jsonify({'id':login_user,"status":205,"available":zones,"location":location})
 	except Exception as e:
 		raise(e)
 		return jsonify({'id':"failed",'status':500})
