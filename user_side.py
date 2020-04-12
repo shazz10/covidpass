@@ -200,7 +200,6 @@ def gregister(current_user):
 			'name':request.json['name'],
 			'phone':request.json['phone'],
 			'address':request.json['address'],
-			'zone':request.json['zone'],
 			'state':request.json['state'],
 			'district':request.json['district']
 			}})
