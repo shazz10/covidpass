@@ -99,7 +99,7 @@ def loginShop():
             return jsonify({'id':login_shop,"status":205,"available":zones,"shop_types":shop_types})
 
     except Exception as e:
-        print(e)
+        raise(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -124,7 +124,7 @@ def registerShop(current_shop):
         return jsonify({'id':"shop updated",'status':201})
 
     except Exception as e:
-        print(e)
+        raise(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -133,18 +133,15 @@ def registerShop(current_shop):
 def updateInventory(current_shop):
     try:
         shops = mongo.db.shop
-        items = request.json['items']
 
-        for i in range(len(items)):
-            if "itemId" not in items[i].keys() or items[i]['itemId'] == None:
-                items[i]['itemId']=uuid.uuid1().hex
+        items = request.json['items']
 
         shops.find_one_and_update({"_id":current_shop["_id"]},{"$set":{"items":items}})
             
         return jsonify({'id':"inventory updated!!",'status':200})
 
     except Exception as e:
-        print(e)
+        raise(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -160,7 +157,20 @@ def getInventory(current_shop,site):
         return jsonify({'id':item,'status':200})
 
     except Exception as e:
-        print(e)
+        raise(e)
+        return jsonify({'id':"failed",'status':500})
+
+
+@helper.route('/api/shop/get_current_inventory',methods=['GET'])
+@token_required
+def get_current_inventory(current_shop,site):
+    try:
+        items = current_shop["items"]
+
+        return jsonify({'id':items,'status':200})
+
+    except Exception as e:
+        raise(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -178,7 +188,7 @@ def get_essentials(current_shop):
         return jsonify({'id':sites,'status':200})
 
     except Exception as e:
-        print(e)
+        raise(e)
         return jsonify({'id':"failed",'status':500})
 
 
