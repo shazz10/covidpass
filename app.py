@@ -5,6 +5,7 @@ from bson.objectid import ObjectId
 from database import mongo
 import os
 
+
 app = Flask("__name__")
 
 #database config starts
@@ -54,7 +55,21 @@ app.register_blueprint(delivery_shopper)
 
 #delivery_shopper usecases ends
 
+#input zone info
+@app.route('/api/insert_zoneinfo',methods=['POST'])
+def insert_zoneinfo():
+	try:
+		info = mongo.db.info
+		
+		i = info.find_one_and_update({"state":request.json["state"],"district":request.json["district"]},
+									 {"$push":{"city":request.json["city"]}})
 
+
+		return jsonify({'id':"success!!",'status':200})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
 
 
 if __name__ == '__main__':

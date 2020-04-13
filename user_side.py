@@ -518,3 +518,19 @@ def get_ngo_list(current_user):
 		return jsonify({'id':"failed","status":500})
 
 
+@user_side.route('/api/get_zone_list',methods=['GET'])
+@token_required
+def get_zone_list(current_user):
+	try:
+		
+		info = mongo.db.info
+		city=info.find_one({"state":current_user["state"],"district":current_user["district"]},{"city":1})
+
+		
+
+		return jsonify({'id':city["city"],"status":200})
+	
+	except Exception as e:
+		raise(e)
+		return jsonify({'id':"failed","status":500})
+
