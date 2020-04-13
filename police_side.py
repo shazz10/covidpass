@@ -8,6 +8,7 @@ import jwt
 import datetime
 from functools import wraps
 from flask import current_app
+import sys
 
 police_side = Blueprint('police_side', __name__)
 
@@ -328,7 +329,6 @@ def register_ngo(current_user):
 	try:
 		
 		ngo = mongo.db.ngo
-		print(request.json)
 		
 		data = {
 			"name":request.json["name"],
@@ -343,7 +343,7 @@ def register_ngo(current_user):
 		return jsonify({'id':"ngo inserted!!","status":201})
 
 	except Exception as e:
-		raise(e)
+		print(e)
 		return jsonify({'id':"failed",'status':500})
 
 
@@ -389,7 +389,7 @@ def register_ngo_activity(current_user):
 		return jsonify({'id':"ngo activity inserted!!","status":201})
 
 	except Exception as e:
-		print(e)
+		print(e,file=sys.stderr)
 		return jsonify({'id':"failed",'status':500})
 		
 

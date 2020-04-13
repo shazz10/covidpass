@@ -185,7 +185,7 @@ def glogin():
 			
 			return jsonify({'id':login_user,"status":205,"available":zones,"location":location})
 	except Exception as e:
-		raise(e)
+		print(e)
 		return jsonify({'id':"failed",'status':500})
 
 
@@ -243,7 +243,7 @@ def get_essentials(current_user):
 		return jsonify({'id':essentials,"status":200})
 
 	except Exception as e:
-		raise(e)
+		print(e)
 		return jsonify({'id':"failed",'status':500})
 
 
@@ -401,7 +401,7 @@ def report_quarantine(current_user):
 		return jsonify({'id':"reported","status":200})
 	
 	except Exception as e:
-		raise(e)
+		print(e)
 		return jsonify({'id':"failed","status":500})
 
 
@@ -435,7 +435,7 @@ def get_report_quarantine(current_user):
 			return jsonify({'id':"user not present","status":400})
 	
 	except Exception as e:
-		raise(e)
+		print(e)
 		return jsonify({'id':"failed","status":500})
 
 
@@ -462,7 +462,7 @@ def report_violation(current_user):
 		return jsonify({'id':"reported","status":200})
 	
 	except Exception as e:
-		raise(e)
+		print(e)
 		return jsonify({'id':"failed","status":500})
 
 
@@ -493,7 +493,7 @@ def get_quarantine_near(current_user):
 		return jsonify({'id':count,"status":200})
 	
 	except Exception as e:
-		raise(e)
+		print(e)
 		return jsonify({'id':"failed","status":500})
 
 
@@ -514,7 +514,7 @@ def get_ngo_list(current_user):
 		return jsonify({'id':output,"status":200})
 	
 	except Exception as e:
-		raise(e)
+		print(e)
 		return jsonify({'id':"failed","status":500})
 
 
@@ -531,6 +531,6 @@ def get_zone_list(current_user):
 		return jsonify({'id':city["city"],"status":200})
 	
 	except Exception as e:
-		raise(e)
+		print(e)
 		return jsonify({'id':"failed","status":500})
 

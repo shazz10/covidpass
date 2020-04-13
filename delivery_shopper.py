@@ -52,7 +52,7 @@ def getAllItems():
                 'itemQty':item['itemQty'],
                 'itemCompany':item['itemCompany'],
                 'item_add_qty':item['item_add_qty']})
-        print(output)
+        #print(output)
         return jsonify({'id':output,'status':201})
     except Exception as e:
         print(e)

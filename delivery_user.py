@@ -98,7 +98,7 @@ def getAllOrders(current_user):
         shops = mongo.db.shop
         output=[]
         dead_orders=[]
-        print(current_user["orders"])
+        #print(current_user["orders"])
         for oid in current_user["orders"]:
             o = orders.find_one({"_id":ObjectId(oid)})
             # print(o)
@@ -112,7 +112,7 @@ def getAllOrders(current_user):
                 output.append(o)
             else:
                 dead_orders.append(oid)
-        print(output)
+        #print(output)
         if len(dead_orders)>0:
             for oid in dead_orders:
                 users.find_one_and_update({"_id":current_user["_id"]},{"$pull":{'orders':oid}})
