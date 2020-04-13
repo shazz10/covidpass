@@ -389,7 +389,7 @@ def register_ngo_activity(current_user):
 		return jsonify({'id':"ngo activity inserted!!","status":201})
 
 	except Exception as e:
-		print(e,file=sys.stderr)
+		print(e)
 		return jsonify({'id':"failed",'status':500})
 		
 

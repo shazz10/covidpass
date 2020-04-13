@@ -134,6 +134,7 @@ def updateInventory(current_shop):
     try:
         shops = mongo.db.shop
         items = request.json['items']
+
         for i in range(len(items)):
             if "itemId" not in items[i].keys() or items[i]['itemId'] == None:
                 items[i]['itemId']=uuid.uuid1().hex
@@ -146,16 +147,38 @@ def updateInventory(current_shop):
         print(e)
         return jsonify({'id':"failed",'status':500})
 
-@helper.route('/api/shop/get_inventory',methods=['GET'])
+
+@helper.route('/api/shop/get_inventory/<site>',methods=['GET'])
 @token_required
-def getInventory(current_shop):
+def getInventory(current_shop,site):
     try:
-            
-        return jsonify({'id':current_shop['items'],'status':200})
+        items = mongo.db.item
+
+        item= items.find_one({"site":site})
+        del item["_id"]
+
+        return jsonify({'id':item,'status':200})
 
     except Exception as e:
         print(e)
         return jsonify({'id':"failed",'status':500})
 
+
+@helper.route('/api/shop/get_essentials',methods=['GET'])
+@token_required
+def get_essentials(current_shop):
+    try:
+        items = mongo.db.item
+
+        item= items.find({},{"site":1})
+        sites=[]
+        for i in item:
+            sites.append(i["site"])
+
+        return jsonify({'id':sites,'status':200})
+
+    except Exception as e:
+        print(e)
+        return jsonify({'id':"failed",'status':500})
 
 

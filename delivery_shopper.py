@@ -52,7 +52,6 @@ def getAllItems():
                 'itemQty':item['itemQty'],
                 'itemCompany':item['itemCompany'],
                 'item_add_qty':item['item_add_qty']})
-        #print(output)
         return jsonify({'id':output,'status':201})
     except Exception as e:
         print(e)
@@ -106,7 +105,6 @@ def editOrders(current_shop):
 def editStatusOrders(current_shop):
     try:
         orders = mongo.db.order
-
         result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$set':{'status':request.json['status']}})
 
         if result:
