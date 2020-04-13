@@ -56,13 +56,31 @@ app.register_blueprint(delivery_shopper)
 #delivery_shopper usecases ends
 
 #input zone info
+@app.route('/api/insert_stateinfo',methods=['POST'])
+def insert_stateinfo():
+	try:
+		info = mongo.db.info
+		
+		if info.find_one({"state":request.json["state"]}):
+			info.find_one_and_update({"state":request.json["state"]},{"$push":{"district":{"name":request.json["district"],"emergency_contact":[],"city":[]}}})
+		else:
+			info.insert({"state":request.json["state"],"district":[{"name":request.json["district"],"emergency_contact":[],"city":[]}]})
+									
+
+		return jsonify({'id':"success!!",'status':200})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
 @app.route('/api/insert_zoneinfo',methods=['POST'])
 def insert_zoneinfo():
 	try:
 		info = mongo.db.info
 		
-		i = info.find_one_and_update({"state":request.json["state"],"district":request.json["district"]},
-									 {"$push":{"city":request.json["city"]}})
+		i = info.find_one_and_update({"state":request.json["state"],"district.name":request.json["district"]},
+									 {"$push":{"district.$.city":request.json["city"]}})
 
 
 		return jsonify({'id':"success!!",'status':200})
@@ -70,6 +88,39 @@ def insert_zoneinfo():
 	except Exception as e:
 		print(e)
 		return jsonify({'id':"failed",'status':500})
+
+
+@app.route('/api/insert_contactinfo',methods=['POST'])
+def insert_contactinfo():
+	try:
+		info = mongo.db.info
+		
+		i = info.find_one_and_update({"state":request.json["state"],"district.name":request.json["district"]},
+									 {"$push":{"district.$.emergency_contact":request.json["emergency_contact"]}})
+
+		return jsonify({'id':"success!!",'status':200})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+
+
+#input items info
+@app.route('/api/item_insert',methods=['POST'])
+def insertItem():
+    try:
+        items = mongo.db.item
+        
+        items.insert(request.json)
+        return jsonify({'id':"inventory updated!!",'status':200})
+
+    except Exception as e:
+        print(e)
+        return jsonify({'id':"failed",'status':500})
+
+
 
 
 if __name__ == '__main__':

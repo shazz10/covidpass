@@ -230,14 +230,16 @@ def get_essentials(current_user):
 			is_quarantined=1
 
 
-		i = info.find_one({"state":current_user["state"],"district":current_user["district"]})
+		i = info.find_one({"state":current_user["state"],"district.name":current_user["district"]},{"district.$.emergency_contact":1})
+		
+		
 
 		essentials={
 		"delivery_cost":50,
 		"cess_rate":0.99,
 		"is_quarantined":is_quarantined,
 		"support":s,
-		"emergency_contact":i["emergency_contact"]
+		"emergency_contact":i["district"][0]["emergency_contact"]
 		}
 
 		return jsonify({'id':essentials,"status":200})

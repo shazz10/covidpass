@@ -16,29 +16,14 @@ SECRET_KEY = "keepitsecret!!"
 PASSWORD = "Nitsuvidha1!"
 
 shop_types=[
-    {"name":"Essentials","id":1},
-    {"name":"Milk","id":2},
-    {"name":"Bread","id":3},
-    {"name":"Baby-Essentials","id":4},
-    {"name":"Fruits & Vegetable","id":5},
-    {"name":"Medicines","id":6},
-    {"name":"Gas Station","id":7}
+    {"name":"Essentials"},
+    {"name":"Milk"},
+    {"name":"Bread"},
+    {"name":"Baby-Essentials"},
+    {"name":"Fruits & Vegetable"},
+    {"name":"Medicines"},
+    {"name":"Gas Station"}
 ]
-
-zones=[
-    {"name":"All of Jamshedpur","id":0},
-    {"name":"Mango","id":1},
-    {"name":"Kadma","id":2},
-    {"name":"Sonari","id":3},
-    {"name":"Bistupur","id":4},
-    {"name":"Sakchi","id":5},
-    {"name":"Golmuri","id":6},
-    {"name":"Jugsalai","id":7},
-    {"name":"Burma Mines","id":8},
-    {"name":"Telco","id":9},
-    {"name":"Parsudih","id":10}
-]
-
 
 
 def token_required(f):
@@ -70,6 +55,8 @@ def token_required(f):
 def loginShop():
     try:
         shops = mongo.db.shop
+        info = mongo.db.info
+
         auth = request.authorization
         if not auth or not auth.username or not auth.password:
             return jsonify({'id':"not authorized",'status':404})
@@ -78,6 +65,11 @@ def loginShop():
 
         login_shop = shops.find_one({'email':auth.username})
 
+        zones=[]
+        infos = info.find()
+        for i in infos:
+            del i["_id"]
+            zones.append(i)
 
         if login_shop:
             
@@ -85,7 +77,7 @@ def loginShop():
             token = jwt.encode({'sid':login_shop['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=7200)},SECRET_KEY)
             login_shop['token']=token.decode('UTF-8')
 
-            return jsonify({'id':login_shop,"status":200,"zones":zones,"shop_types":shop_types})
+            return jsonify({'id':login_shop,"status":200,"available":zones,"shop_types":shop_types})
             
         else:
             id=shops.insert({
@@ -104,7 +96,7 @@ def loginShop():
                 'orders':[],
                 'token':token.decode('UTF-8')
             }
-            return jsonify({'id':login_shop,"status":205,"zones":zones,"shop_types":shop_types})
+            return jsonify({'id':login_shop,"status":205,"available":zones,"shop_types":shop_types})
 
     except Exception as e:
         print(e)
@@ -166,15 +158,4 @@ def getInventory(current_shop):
         return jsonify({'id':"failed",'status':500})
 
 
-
-@helper.route('/api/item_insert',methods=['POST'])
-def insertItem():
-    try:
-        items = mongo.db.item
-        items.insert(request.json)
-        return jsonify({'id':"inventory updated!!",'status':200})
-
-    except Exception as e:
-        print(e)
-        return jsonify({'id':"failed",'status':500})
 
