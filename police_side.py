@@ -377,6 +377,7 @@ def register_ngo_activity(current_user):
 		ngo = mongo.db.ngo
 
 		data = {
+			"description":request.json["description"],
 			"datetime":request.json["datetime"],
 			"city":request.json["city"],
 			"address":request.json["address"],

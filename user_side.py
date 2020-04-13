@@ -528,8 +528,6 @@ def get_zone_list(current_user):
 		info = mongo.db.info
 		city=info.find_one({"state":current_user["state"],"district":current_user["district"]},{"city":1})
 
-		
-
 		return jsonify({'id':city["city"],"status":200})
 	
 	except Exception as e:
