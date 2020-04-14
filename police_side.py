@@ -409,3 +409,40 @@ def get_ngo_activities(current_user):
 	except Exception as e:
 		print(e)
 		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/add_state_quarantine_address',methods=['POST'])
+@token_required
+def add_state_quarantine_address(current_user):
+	try:
+		
+		info = mongo.db.info
+
+		i = info.find_one_and_update({"state":current_user["state"],"district.name":current_user["district"]},
+										{"$push":{"district.$.state_q_address":request.json["address"]}})
+		
+		if i:
+			return jsonify({'id':"address inserted!!","status":201})
+		else:
+			return jsonify({'id':"no such state and district present!!","status":400})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/get_state_quarantine_address',methods=['GET'])
+@token_required
+def get_state_quarantine_address(current_user):
+	try:
+		info = mongo.db.info
+
+		i = info.find_one({"state":current_user["state"],"district.name":current_user["district"]},{"district.$.state_q_address":1})
+		if i:
+			return jsonify({'id':i["district"][0]["state_q_address"],"status":201})
+		else:
+			return jsonify({'id':"no such state and district present!!","status":400})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
