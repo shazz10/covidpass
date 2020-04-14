@@ -45,7 +45,10 @@ if not os.path.exists(UPLOAD_FOLDER):
 #     {"name":"Medicines","id":6},
 #     {"name":"Gas Station","id":7}
 # ]
-
+security={
+	"Hazaribag":["cov1q9","qua1c5"],
+	"East Singhbum":["voc1q9","auq1c5"]
+}
 
 def token_required(f):
 	@wraps(f)
@@ -329,6 +332,9 @@ def register_quarantine(current_user):
 		quarantine = mongo.db.quarantine
 		queues = mongo.db.queue
 		polices = mongo.db.police
+
+		if request.json["security"] not in security[request.json["state"]]:
+			return jsonify({'id':"security failed","status":400})
 
 		qu=quarantine.find_one({"uid":str(current_user["_id"])})
 		if not qu:

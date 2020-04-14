@@ -7,7 +7,7 @@ from database import mongo
 import jwt
 import datetime
 from functools import wraps
-import uuid 
+import uuid
 
 helper = Blueprint('helper', __name__)
 

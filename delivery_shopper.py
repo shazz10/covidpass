@@ -38,25 +38,6 @@ def token_required(f):
     return decorator
 
 
-@delivery_shopper.route('/api/items',methods=['GET'])
-def getAllItems():
-    try:
-        items=mongo.db.item
-        output=[]
-        ItemCursor=items.find({})
-        for item in ItemCursor:
-            output.append({
-                'itemName':item['itemName'],
-                'category':item['category'],
-                'itemPrice':item['itemPrice'],
-                'itemQty':item['itemQty'],
-                'itemCompany':item['itemCompany'],
-                'item_add_qty':item['item_add_qty']})
-        return jsonify({'id':output,'status':201})
-    except Exception as e:
-        print(e)
-        return jsonify({'id':"failed",'status':500})
-
 
 
 @delivery_shopper.route('/api/shop/orders',methods=['GET'])
@@ -82,13 +63,15 @@ def getAllShopOrders(current_shop):
         return jsonify({'id':"failed",'status':500})
 
 
+
 @delivery_shopper.route('/api/shop/edit_order',methods=['POST'])
 @token_required
 def editOrders(current_shop):
     try:
         orders = mongo.db.order
         
-        result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$set':{'items':request.json['items'],'amount':request.json['amount']}})
+        result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},
+            {'$set':{'items':request.json['items'],'amount':request.json['amount'],'delivery_time':request.json["delivery_time"]}})
 
         if result:
             return jsonify({'id':"updated successfully",'status':201})
