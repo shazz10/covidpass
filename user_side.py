@@ -237,7 +237,7 @@ def get_essentials(current_user):
 
 		i1 = info.find_one({"state":current_user["state"],"district.name":current_user["district"]},{"district.$.emergency_contact":1})
 		i2 = info.find_one({"state":current_user["state"],"district.name":current_user["district"]},{"district.$.state_q_address":1})
-		
+		i3 = info.find_one({"state":current_user["state"],"district.name":current_user["district"]},{"district.$.city":1})
 		
 
 		essentials={
@@ -246,7 +246,8 @@ def get_essentials(current_user):
 		"is_quarantined":is_quarantined,
 		"support":s,
 		"emergency_contact":i1["district"][0]["emergency_contact"],
-		"state_q_address":i2["district"][0]["state_q_address"]
+		"state_q_address":i2["district"][0]["state_q_address"],
+		"city":i3["district"][0]["city"]
 		}
 
 		return jsonify({'id':essentials,"status":200})
@@ -333,7 +334,7 @@ def register_quarantine(current_user):
 		queues = mongo.db.queue
 		polices = mongo.db.police
 
-		if request.json["security"] not in security[request.json["state"]]:
+		if request.json["sec_code"] not in security[request.json["state"]]:
 			return jsonify({'id':"security failed","status":400})
 
 		qu=quarantine.find_one({"uid":str(current_user["_id"])})
