@@ -163,7 +163,7 @@ def getInventory(current_shop,site):
 
 @helper.route('/api/shop/get_current_inventory',methods=['GET'])
 @token_required
-def get_current_inventory(current_shop,site):
+def get_current_inventory(current_shop):
     try:
         items = current_shop["items"]
 
