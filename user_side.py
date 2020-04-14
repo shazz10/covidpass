@@ -334,7 +334,7 @@ def register_quarantine(current_user):
 		queues = mongo.db.queue
 		polices = mongo.db.police
 
-		if request.json["sec_code"] not in security[request.json["state"]]:
+		if request.json["sec_code"] not in security[request.json["district"]]:
 			return jsonify({'id':"security failed","status":400})
 
 		qu=quarantine.find_one({"uid":str(current_user["_id"])})
