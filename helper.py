@@ -138,7 +138,7 @@ def updateInventory(current_shop):
         items = request.json['items']
 
         for i in range(len(items)):
-            if "item_id" not in items[i].keys() or items[i]['item_id'] == None:
+            if "item_id" not in items[i].keys() or items[i]['item_id'][0] == "u":
                 items[i]['item_id']=uuid.uuid1().hex
 
         shops.find_one_and_update({"_id":current_shop["_id"]},{"$set":{"items":items}})
