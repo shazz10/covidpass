@@ -67,7 +67,7 @@ def getAllShop(current_user):
     try:
         shops = mongo.db.shop
         restricted = mongo.db.restricted
-
+        print(current_user)
         res = restricted.find_one({
             "city":current_user["city"],
             "zone":current_user["zone"],
@@ -78,7 +78,7 @@ def getAllShop(current_user):
             return jsonify({'id':"Your location is restricted for delivery!!",'status':300})
 
         output=[]
-        shops_in_zone=shops.find({'zone':int(current_user["zone"])},
+        shops_in_zone=shops.find({'zone':current_user["zone"]},
             {"_id":1,"address":1,"email":1,"name":1,"phone":1})
         
         for shop in shops_in_zone:
