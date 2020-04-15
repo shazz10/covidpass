@@ -61,7 +61,7 @@ def set_delivery_address(current_user):
         return jsonify({'id':"failed",'status':500})
 
 
-@delivery_user.route('/api/get_shops',methods=['POST'])
+@delivery_user.route('/api/get_shops',methods=['GET'])
 @token_required
 def getAllShop(current_user):
     try:
@@ -78,8 +78,8 @@ def getAllShop(current_user):
             return jsonify({'id':"Your location is restricted for delivery!!",'status':300})
 
         output=[]
-        shops_in_zone=shops.find({'type':int(request.json['type']),'zone':int(current_user["zone"])},
-            {"_id":1,"address":1,"email":1,"name":1,"phone":1,"type":1})
+        shops_in_zone=shops.find({'zone':int(current_user["zone"])},
+            {"_id":1,"address":1,"email":1,"name":1,"phone":1})
         
         for shop in shops_in_zone:
             shop['_id']=str(shop["_id"])

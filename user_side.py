@@ -239,6 +239,9 @@ def get_essentials(current_user):
 		i2 = info.find_one({"state":current_user["state"],"district.name":current_user["district"]},{"district.$.state_q_address":1})
 		i3 = info.find_one({"state":current_user["state"],"district.name":current_user["district"]},{"district.$.city":1})
 		
+		is_delivery=0
+		if "zone" in current_user:
+			is_delivery=1
 
 		essentials={
 		"delivery_cost":50,
@@ -247,7 +250,8 @@ def get_essentials(current_user):
 		"support":s,
 		"emergency_contact":i1["district"][0]["emergency_contact"],
 		"state_q_address":i2["district"][0]["state_q_address"],
-		"city":i3["district"][0]["city"]
+		"city":i3["district"][0]["city"],
+		"is_delivery":is_delivery
 		}
 
 		return jsonify({'id':essentials,"status":200})
