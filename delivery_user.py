@@ -67,7 +67,7 @@ def getAllShop(current_user):
     try:
         shops = mongo.db.shop
         restricted = mongo.db.restricted
-        print(current_user)
+
         res = restricted.find_one({
             "city":current_user["city"],
             "zone":current_user["zone"],
