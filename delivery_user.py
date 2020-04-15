@@ -106,6 +106,7 @@ def get_shop_items(current_user):
         shop = shops.find_one({"_id":ObjectId(request.json['sid'])},
                               {"items":1})
         
+        items = []
         items = shop['items']
 
         if shop:

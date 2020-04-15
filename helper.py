@@ -155,6 +155,7 @@ def updateInventory(current_shop):
 @token_required
 def get_current_inventory(current_shop):
     try:
+        items = []
         items = current_shop["items"]
 
         return jsonify({'id':items,'status':200})

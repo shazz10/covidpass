@@ -54,15 +54,14 @@ def getAllShopOrders(current_shop,status):
         else:
             orders_list=current_shop['orders']
 
-        if len(orders_list)==0:
-            return jsonify({'id':'No orders exist','status':300})
-        else:
-            for order in orders_list:
-                sorder=orders.find_one({'_id':ObjectId(order)})
-                if sorder and sorder["status"]==int(status):
-                    sorder['_id']=str(sorder["_id"])
-                    output.append(sorder)
-            return jsonify({'id':output,'status':201})
+        
+        for order in orders_list:
+            sorder=orders.find_one({'_id':ObjectId(order)})
+            if sorder and sorder["status"]==int(status):
+                sorder['_id']=str(sorder["_id"])
+                output.append(sorder)
+        return jsonify({'id':output,'status':201})
+        
     except Exception as e:
         print(e)
         return jsonify({'id':"failed",'status':500})
