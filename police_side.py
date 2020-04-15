@@ -146,11 +146,7 @@ def get_essentials(current_user):
 		i = info.find_one({"state":current_user["state"],"district.name":current_user["district"]},{"district.$.city":1})
 		
 
-		essentials={
-		"city":i["district"][0]["city"]
-		}
-
-		return jsonify({'id':essentials,"status":200})
+		return jsonify({'id':i["district"][0]["city"],"status":200})
 
 	except Exception as e:
 		print(e)
