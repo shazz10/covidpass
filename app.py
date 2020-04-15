@@ -108,7 +108,7 @@ def insert_contactinfo():
 
 
 #input items info
-@app.route('/api/item_insert',methods=['POST'])
+@app.route('/api/mapping_insert',methods=['POST'])
 def insertItem():
     try:
         items = mongo.db.item

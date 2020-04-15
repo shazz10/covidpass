@@ -170,12 +170,14 @@ def get_essentials(current_shop):
     try:
         items = mongo.db.item
 
-        item= items.find({},{"site":1})
-        sites=[]
+        item= items.find({})
+        mappings=[]
         for i in item:
-            sites.append(i["site"])
+            mappings.append(i["mapping"])
 
-        return jsonify({'id':sites,'status':200})
+        return jsonify({'id':{
+            "mappings":mappings[0]
+            },'status':200})
 
     except Exception as e:
         raise(e)

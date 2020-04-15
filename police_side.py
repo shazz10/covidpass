@@ -593,7 +593,7 @@ def get_police_users(current_user):
 				
 				state.append(q)
 
-		return jsonify({'id':{"state":state,"home":home},'status':200})
+		return jsonify({"state":state,"home":home,'status':200})
 
 		
 
