@@ -519,15 +519,15 @@ def add_restricted_zones(current_user):
 		return jsonify({'id':"failed",'status':500})
 
 
-@police_side.route('/api/police/remove_restricted_zones',methods=['DELETE'])
+@police_side.route('/api/police/remove_restricted_zones/<rid>',methods=['DELETE'])
 @token_required
-def remove_restricted_zones(current_user):
+def remove_restricted_zones(current_user,rid):
 	try:
 		restricted = mongo.db.restricted
 
 		
 		r=restricted.remove({
-			"_id":ObjectId(request.json["rid"])
+			"_id":ObjectId(rid)
 			})
 		
 		if r:

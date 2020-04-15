@@ -224,7 +224,7 @@ def update_order(current_user):
         if int(request.json["status"])==-1:
             orders.find_one_and_update({"_id":ObjectId(request.json["oid"])},{'$set':{'status':-1}})
             shops.find_one_and_update({"_id":ObjectId(request.json["sid"])},{"$pull":{"orders":request.json["oid"]}})
-            return jsonify({'id':"rejected",'status':201})
+            return jsonify({'id':"rejected",'status':202})
         elif int(request.json["status"])==2:
             orders.find_one_and_update({"_id":ObjectId(request.json["oid"])},{'$set':{'status':2}})
             return jsonify({'id':"accepted!!",'status':201})
