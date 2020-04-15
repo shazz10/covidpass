@@ -40,21 +40,26 @@ def token_required(f):
 
 
 
-@delivery_shopper.route('/api/shop/orders',methods=['GET'])
+@delivery_shopper.route('/api/shop/orders/<status>',methods=['GET'])
 @token_required
-def getAllShopOrders(current_shop):
+def getAllShopOrders(current_shop,status):
     try:
         shops=mongo.db.shop
         orders = mongo.db.order
         output=[]
-        orders_list=current_shop['orders']
+        
+
+        if int(status)==3:
+            orders_list=current_shop['history']
+        else:
+            orders_list=current_shop['orders']
 
         if len(orders_list)==0:
             return jsonify({'id':'No orders exist','status':300})
         else:
             for order in orders_list:
                 sorder=orders.find_one({'_id':ObjectId(order)})
-                if sorder:
+                if sorder and sorder["status"]==int(status):
                     sorder['_id']=str(sorder["_id"])
                     output.append(sorder)
             return jsonify({'id':output,'status':201})
@@ -71,7 +76,7 @@ def editOrders(current_shop):
         orders = mongo.db.order
         
         result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},
-            {'$set':{'items':request.json['items'],'amount':request.json['amount'],'delivery_time':request.json["delivery_time"]}})
+            {'$set':{'items':request.json['items'],'amount':request.json['amount'],'delivery_time':request.json["delivery_time"],'status':1}})
 
         if result:
             return jsonify({'id':"updated successfully",'status':201})
@@ -88,7 +93,11 @@ def editOrders(current_shop):
 def editStatusOrders(current_shop):
     try:
         orders = mongo.db.order
-        result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$set':{'status':request.json['status']}})
+        shops = mongo.db.shop
+        result = orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$inc':{'status':1}})
+        if result:
+            shops.find_one_and_update({"_id":current_shop["_id"]},{"$pull":{"orders":request.json['oid']}})
+            shops.find_one_and_update({"_id":current_shop["_id"]},{"$push":{"history":request.json['oid']}})
 
         if result:
             return jsonify({'id':"updated successfully",'status':201})

@@ -61,6 +61,7 @@ def register():
 				'is_pass':request.json['is_pass'],
 				'is_ngo':request.json["is_ngo"],
 				'is_shopper':request.json["is_shopper"],
+				'is_super':request.json["is_super"],
 				'viewing_users_q':[],
 				'viewing_users_s':[]
 				})
@@ -83,16 +84,20 @@ def register():
 						'is_shopper':request.json["is_shopper"]
 					})
 			else:
-				update={}
+				
 				if s['is_quarantine']==0 and request.json['is_quarantine']==1:
-					update["is_quarantine"]=1
+					
+					support.find_one_and_update({"_id":s["_id"]},{"$set":{"is_quarantine":1}})
 				if s['is_pass']==0 and request.json['is_pass']==1:
-					update["is_pass"]=1
+					
+					support.find_one_and_update({"_id":s["_id"]},{"$set":{"is_pass":1}})
 				if s['is_ngo']==0 and request.json['is_ngo']==1:
-					update["is_ngo"]=1
+					
+					support.find_one_and_update({"_id":s["_id"]},{"$set":{"is_ngo":1}})
 				if s['is_shopper']==0 and request.json['is_shopper']==1:
-					update["is_shopper"]=1
-				support.find_one_and_update({"_id":s["_id"]},{"$set":update})
+					
+					support.find_one_and_update({"_id":s["_id"]},{"$set":{"is_shopper":1}})
+				
 
 			return jsonify({'id':str(id),'status':201})
 		else:
@@ -129,6 +134,27 @@ def login():
 		print(e)
 		return jsonify({'id':"failed",'status':500})
 
+
+@police_side.route('/api/police/get_essentials',methods=['GET'])
+@token_required
+def get_essentials(current_user):
+	try:
+		
+		info = mongo.db.info
+
+		
+		i = info.find_one({"state":current_user["state"],"district.name":current_user["district"]},{"district.$.city":1})
+		
+
+		essentials={
+		"city":i["district"][0]["city"]
+		}
+
+		return jsonify({'id':essentials,"status":200})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
 
 
 @police_side.route('/api/police/get_passes/<status>',methods=['GET'])
@@ -442,6 +468,134 @@ def get_state_quarantine_address(current_user):
 			return jsonify({'id':i["district"][0]["state_q_address"],"status":201})
 		else:
 			return jsonify({'id':"no such state and district present!!","status":400})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/get_restricted_zones',methods=['GET'])
+@token_required
+def get_restricted_zones(current_user):
+	try:
+		restricted = mongo.db.restricted
+
+		res = restricted.find({"state":current_user["state"],"district":current_user["district"]})
+		output=[]
+		for r in res:
+			if r:
+				r["_id"]=str(r["_id"])
+				output.append(r)
+
+		
+		return jsonify({'id':output,"status":201})
+		
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/add_restricted_zones',methods=['POST'])
+@token_required
+def add_restricted_zones(current_user):
+	try:
+		restricted = mongo.db.restricted
+
+		
+		r=restricted.insert({
+			"state":current_user["state"],
+			"district":current_user["district"],
+			"zone":request.json["zone"],
+			"subzone":request.json["subzone"],
+			"sector":request.json["sector"]
+			})
+		
+		if r:
+			return jsonify({'id':"zone inserted","status":201})
+		else:
+			return jsonify({'id':"failed insertion","status":400})
+
+		
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/remove_restricted_zones',methods=['DELETE'])
+@token_required
+def remove_restricted_zones(current_user):
+	try:
+		restricted = mongo.db.restricted
+
+		
+		r=restricted.remove({
+			"_id":ObjectId(request.json["rid"])
+			})
+		
+		if r:
+			return jsonify({'id':"zone removed","status":201})
+		else:
+			return jsonify({'id':"failed removal","status":400})
+
+		
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/get_police',methods=['GET'])
+@token_required
+def get_police(current_user):
+	try:
+		police = mongo.db.police
+
+		polices=police.find({"state":current_user["state"],"district":current_user["district"],"is_quarantine":1},{"name":1,"email":1,"phone":1})
+		output=[]
+		for p in polices:
+			p["_id"]=str(p["_id"])
+			output.append(p)
+
+		return jsonify({'id':output,'status':200})
+
+		
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/get_police_users',methods=['POST'])
+@token_required
+def get_police_users(current_user):
+	try:
+		police = mongo.db.police
+		quarantine = mongo.db.quarantine
+
+		users = police.find_one({"_id":ObjectId(request.json["pid"])},{"viewing_users_q":1,"viewing_users_s":1})
+		
+		home=[]
+		state=[]
+
+		for u in users["viewing_users_q"]:
+			q = quarantine.find_one({"_id":ObjectId(u)},{"name":1,"address":1,"phone":1,"start_date":1,"end_date":1})
+			if q:
+				del q["_id"]
+				
+				home.append(q)
+
+		for u in users["viewing_users_s"]:
+			q = quarantine.find_one({"_id":ObjectId(u)},{"name":1,"address":1,"phone":1,"start_date":1,"end_date":1})
+			if q:
+				del q["_id"]
+				
+				state.append(q)
+
+		return jsonify({'id':{"state":state,"home":home},'status':200})
+
+		
 
 	except Exception as e:
 		print(e)

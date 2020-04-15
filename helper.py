@@ -84,7 +84,8 @@ def loginShop():
                 'name':request.json['name'],
                 'email':request.json['email'],
                 'items':[],
-                'orders':[]
+                'orders':[],
+                'history':[]
                 })
             shops.create_index([('email',1)], name='search_email', default_language='english')
             token = jwt.encode({'sid':str(id),'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=7200)},SECRET_KEY)

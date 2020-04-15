@@ -36,18 +36,41 @@ def token_required(f):
 
     return decorator
 
+@delivery_user.route('/api/set_delivery_address',methods=['POST'])
+@token_required
+def set_delivery_address(current_user):
+    try:
+        users = mongo.db.user
+        result=users.find_one_and_update({"_id":current_user["_id"]},{"$set":{"delivery_address":request.json["delivery_address"]}})
+        
+        if result:
+            return jsonify({'id':"updated",'status':201})
+        else:
+            return jsonify({'id':"failure",'status':400})
+
+    except Exception as e:
+        print(e)
+        return jsonify({'id':"failed",'status':500})
+
 
 @delivery_user.route('/api/get_shops',methods=['POST'])
 @token_required
 def getAllShop(current_user):
     try:
         shops = mongo.db.shop
-        #users = mongo.db.user
-        #current_user = users.find_one({'_id':ObjectId(request.json['uid'])})
-        zone = request.json['zone']
+        restricted = mongo.db.restricted
+
+        res = restricted.find_one({
+            "city":current_user["delivery_address"]["city"],
+            "zone":current_user["delivery_address"]["zone"],
+            "subzone":current_user["delivery_address"]["subzone"],
+            "sector":current_user["delivery_address"]["sector"]
+            })
+        if res:
+            return jsonify({'id':"Your location is restricted for delivery!!",'status':300})
 
         output=[]
-        shops_in_zone=shops.find({'type':int(request.json['type']),'zone':int(request.json['zone'])},
+        shops_in_zone=shops.find({'type':int(request.json['type']),'zone':int(current_user["delivery_address"]["zone"])},
             {"_id":1,"address":1,"email":1,"name":1,"phone":1,"type":1})
         
         for shop in shops_in_zone:
@@ -152,24 +175,6 @@ def get_order(current_user):
         return jsonify({'id':"failed",'status':500})
 
 
-# @delivery_user.route('/api/singleorder/<oid>',methods=['GET'])
-# def getSingleOrders(oid):
-#     try:
-#         orders = mongo.db.order
-#         items = mongo.db.item
-#         output=[]
-#         sorder=orders.find_one({'_id':ObjectId(oid)})
-#         current_items = sorder['items']
-#         current_prices = []
-#         for it in current_items:
-#             itemf = items.find_one({'_id':ObjectId(it)})
-#             current_prices.append(itemf['price'])
-#         return jsonify({'orderId':str(sorder['_id']),'items':sorder['itemnames'],'qty':sorder['qty'],'amount':sorder['amount'],'time':sorder['time'],'status':sorder['status'],'itemprices':current_prices})
-#     except Exception as e:
-#         print(e)
-#         return jsonify({'id':"failed",'status':500})
-
-
 @delivery_user.route('/api/push_orders',methods=['POST'])
 @token_required
 def pushOrder(current_user):
@@ -182,7 +187,6 @@ def pushOrder(current_user):
         'items':request.json['items'],
         'uid':str(current_user["_id"]),
         'sid':request.json['sid'],
-        'amount':request.json['amount'],
         'time':request.json['time'],
         'address':request.json['address'],
         'status':0,
