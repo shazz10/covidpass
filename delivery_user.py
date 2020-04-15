@@ -41,7 +41,15 @@ def token_required(f):
 def set_delivery_address(current_user):
     try:
         users = mongo.db.user
-        result=users.find_one_and_update({"_id":current_user["_id"]},{"$set":{"delivery_address":request.json["delivery_address"]}})
+        result=users.find_one_and_update({"_id":current_user["_id"]},{"$set":
+            {
+                "city":request.json["city"],
+                "zone":request.json["zone"],
+                "subzone":request.json["subzone"],
+                "sector":request.json["sector"],
+                "area":request.json["area"]
+
+            }})
         
         if result:
             return jsonify({'id':"updated",'status':201})
@@ -61,16 +69,16 @@ def getAllShop(current_user):
         restricted = mongo.db.restricted
 
         res = restricted.find_one({
-            "city":current_user["delivery_address"]["city"],
-            "zone":current_user["delivery_address"]["zone"],
-            "subzone":current_user["delivery_address"]["subzone"],
-            "sector":current_user["delivery_address"]["sector"]
+            "city":current_user["city"],
+            "zone":current_user["zone"],
+            "subzone":current_user["subzone"],
+            "sector":current_user["sector"]
             })
         if res:
             return jsonify({'id':"Your location is restricted for delivery!!",'status':300})
 
         output=[]
-        shops_in_zone=shops.find({'type':int(request.json['type']),'zone':int(current_user["delivery_address"]["zone"])},
+        shops_in_zone=shops.find({'type':int(request.json['type']),'zone':int(current_user["zone"])},
             {"_id":1,"address":1,"email":1,"name":1,"phone":1,"type":1})
         
         for shop in shops_in_zone:

@@ -137,6 +137,10 @@ def updateInventory(current_shop):
 
         items = request.json['items']
 
+        for i in range(len(items)):
+            if "item_id" not in items[i].keys() or items[i]['item_id'] == None:
+                items[i]['item_id']=uuid.uuid1().hex
+
         shops.find_one_and_update({"_id":current_shop["_id"]},{"$set":{"items":items}})
             
         return jsonify({'id':"inventory updated!!",'status':200})
@@ -145,21 +149,6 @@ def updateInventory(current_shop):
         raise(e)
         return jsonify({'id':"failed",'status':500})
 
-
-@helper.route('/api/shop/get_inventory/<site>',methods=['GET'])
-@token_required
-def getInventory(current_shop,site):
-    try:
-        items = mongo.db.item
-
-        item= items.find_one({"site":site})
-        del item["_id"]
-
-        return jsonify({'id':item,'status':200})
-
-    except Exception as e:
-        raise(e)
-        return jsonify({'id':"failed",'status':500})
 
 
 @helper.route('/api/shop/get_current_inventory',methods=['GET'])
