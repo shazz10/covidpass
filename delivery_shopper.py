@@ -49,7 +49,7 @@ def getAllShopOrders(current_shop,status):
         output=[]
         
         orders_list=[]
-        
+
         if int(status)==3:
             orders_list=current_shop['history']
         else:
@@ -85,7 +85,7 @@ def editOrders(current_shop):
             return jsonify({'id':'No orders exist','status':300})
 
     except Exception as e:
-        print(e)
+        raise(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -106,7 +106,7 @@ def editStatusOrders(current_shop):
             return jsonify({'id':'No orders exist','status':300})
 
     except Exception as e:
-        print(e)
+        raise(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -126,5 +126,5 @@ def rejectOrder(current_shop):
             return jsonify({'id':'No orders exist','status':300})
             
     except Exception as e:
-        print(e)
+        raise(e)
         return jsonify({'id':"failed",'status':500})

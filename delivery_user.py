@@ -211,3 +211,25 @@ def pushOrder(current_user):
     except Exception as e:
         print(e)
         return jsonify({'id':"failed",'status':500})
+
+
+@delivery_user.route('/api/update_order',methods=['POST'])
+@token_required
+def update_order(current_user):
+    try:
+        orders = mongo.db.order
+        users = mongo.db.user
+        shops = mongo.db.shop
+
+        if int(request.json["status"])==-1:
+            orders.find_one_and_update({"_id":ObjectId(request.json["oid"])},{'$set':{'status':-1}})
+            shops.find_one_and_update({"_id":ObjectId(request.json["sid"])},{"$pull":{"orders":request.json["oid"]}})
+            return jsonify({'id':"rejected",'status':201})
+        elif int(request.json["status"])==2:
+            orders.find_one_and_update({"_id":ObjectId(request.json["oid"])},{'$set':{'status':2}})
+            return jsonify({'id':"accepted!!",'status':201})
+
+        return jsonify({'id':"error",'status':404})
+    except Exception as e:
+        print(e)
+        return jsonify({'id':"failed",'status':500})
