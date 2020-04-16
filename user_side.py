@@ -247,8 +247,8 @@ def get_essentials(current_user):
 			i3["district"][0]["city"]=None
 
 		essentials={
-		"delivery_cost":50,
-		"cess_rate":0.99,
+		"delivery_cost":0,
+		"cess_rate":0,
 		"is_quarantined":is_quarantined,
 		"support":s,
 		"emergency_contact":i1["district"][0]["emergency_contact"],

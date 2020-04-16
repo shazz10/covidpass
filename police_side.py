@@ -504,7 +504,8 @@ def add_restricted_zones(current_user):
 			"district":current_user["district"],
 			"zone":request.json["zone"],
 			"subzone":request.json["subzone"],
-			"sector":request.json["sector"]
+			"sector":request.json["sector"],
+			"city":request.json["city"]
 			})
 		
 		if r:
