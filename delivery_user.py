@@ -192,11 +192,15 @@ def pushOrder(current_user):
         users = mongo.db.user
         shops = mongo.db.shop
 
+        time = datetime.datetime.utcnow()
+        time+= datetime.timedelta(minutes=330)
+        time = str(time).split('.')[0]
+
         id = orders.insert({
         'items':request.json['items'],
         'uid':str(current_user["_id"]),
         'sid':request.json['sid'],
-        'time':request.json['time'],
+        'time':time,
         'address':request.json['address'],
         'status':0,
         })

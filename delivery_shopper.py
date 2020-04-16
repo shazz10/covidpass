@@ -75,7 +75,6 @@ def getAllShopOrders(current_shop,status):
 def editOrders(current_shop):
     try:
         orders = mongo.db.order
-        
         result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},
             {'$set':{'items':request.json['items'],'amount':request.json['amount'],'delivery_time':request.json["delivery_time"],'status':1}})
 
@@ -128,3 +127,6 @@ def rejectOrder(current_shop):
     except Exception as e:
         raise(e)
         return jsonify({'id':"failed",'status':500})
+
+
+

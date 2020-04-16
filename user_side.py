@@ -45,10 +45,12 @@ if not os.path.exists(UPLOAD_FOLDER):
 #     {"name":"Medicines","id":6},
 #     {"name":"Gas Station","id":7}
 # ]
-security={
-	"Hazaribag":["cov1q9","qua1c5"],
-	"East Singhbum":["voc1q9","auq1c5"]
-}
+{'Hazaribag': ['AWMDA6','RWNe8V','OsFSaT','Vt20OO','vZJ9pu','EVdsTh','WMd0ww','65oX09','Y4ZVUs','NhuzmC','disnF5','2CesxZ','dX82F3','6hSuAk',
+'AuLVAh','Q7mZim','kL8uua','gaNOpz','rR0tLF','tIHP5c','hvpS9Y','tvd0V0','HFwCXn','9TjWXE','DIKLrS','SmA1gQ','4laFe1','T6t40w','3aZdHK','Pwm1pF',
+'3nRhyb','FcSql3','pcYSr2','y61Ewp','KsnXht','kYuKfV','KddAa2','v9t6oR','cz9C8N','TtNw7L','8R39kx','GWhf6O','M5m0Wl','jITitV','mqD3n4','Hc1DwY',
+'rXxlFX','CDdKPH','8f3BVK','b8d9Lu'],
+
+'East Singhbum': ['W4TpTg','uQe86i','xaHPoR','BsFZla','1UVXEJ','tSu8br','Dgi5o2','jR12ok','Sh20ys','BAK59Y']}
 
 def token_required(f):
 	@wraps(f)
