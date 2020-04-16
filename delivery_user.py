@@ -203,6 +203,7 @@ def pushOrder(current_user):
         'sid':request.json['sid'],
         'time':time,
         'address':request.json['address'],
+        'phone':current_user["phone"],
         'status':0,
         })
 
