@@ -232,18 +232,19 @@ def get_essentials(current_user):
 
 		del s["_id"]
 
-		is_quarantined=0
-		if user:
-			is_quarantined=1
-
-
 		i1 = info.find_one({"state":current_user["state"],"district.name":current_user["district"]},{"district.$.emergency_contact":1})
 		i2 = info.find_one({"state":current_user["state"],"district.name":current_user["district"]},{"district.$.state_q_address":1})
 		i3 = info.find_one({"state":current_user["state"],"district.name":current_user["district"]},{"district.$.city":1})
 		
+		is_quarantined=0
+		if user:
+			is_quarantined=1
+			i2["district"][0]["state_q_address"]=""
+
 		is_delivery=0
 		if "zone" in current_user:
 			is_delivery=1
+			i3["district"][0]["city"]=""
 
 		essentials={
 		"delivery_cost":50,
