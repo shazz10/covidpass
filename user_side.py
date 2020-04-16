@@ -239,12 +239,12 @@ def get_essentials(current_user):
 		is_quarantined=0
 		if user:
 			is_quarantined=1
-			i2["district"][0]["state_q_address"]=""
+			i2["district"][0]["state_q_address"]=None
 
 		is_delivery=0
 		if "zone" in current_user:
 			is_delivery=1
-			i3["district"][0]["city"]=""
+			i3["district"][0]["city"]=None
 
 		essentials={
 		"delivery_cost":50,
