@@ -439,11 +439,20 @@ def add_state_quarantine_address(current_user):
 	try:
 		
 		info = mongo.db.info
+		state_q = mongo.db.state_quarantine
 
 		i = info.find_one_and_update({"state":current_user["state"],"district.name":current_user["district"]},
 										{"$push":{"district.$.state_q_address":request.json["address"]}})
+		s= state_q.insert({
+			"state":current_user["state"],
+			"district":current_user["district"],
+			"address":request.json["address"],
+			"lat":request.json["lat"],
+			"lon":request.json["lon"],
+			"phone":request.json["phone"]
+			})
 		
-		if i:
+		if i and s:
 			return jsonify({'id':"address inserted!!","status":201})
 		else:
 			return jsonify({'id':"no such state and district present!!","status":400})
@@ -457,13 +466,31 @@ def add_state_quarantine_address(current_user):
 @token_required
 def get_state_quarantine_address(current_user):
 	try:
-		info = mongo.db.info
+		state_q = mongo.db.state_quarantine
 
-		i = info.find_one({"state":current_user["state"],"district.name":current_user["district"]},{"district.$.state_q_address":1})
-		if i:
-			return jsonify({'id':i["district"][0]["state_q_address"],"status":201})
-		else:
-			return jsonify({'id':"no such state and district present!!","status":400})
+		s = state_q.find({"state":current_user["state"],"district":current_user["district"]})
+		output=[]
+
+		for i in s:
+			i["_id"]=str(i["_id"])
+			output.append(i)
+
+		return jsonify({"id":output,"status":200})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/remove_state_quarantine_address',methods=['POST'])
+@token_required
+def remove_state_quarantine_address(current_user):
+	try:
+		state_q = mongo.db.state_quarantine
+
+		state_q.remove({"_id":ObjectId(request.json["sqid"])})
+
+		return jsonify({"id":"removed","status":200})
 
 	except Exception as e:
 		print(e)
