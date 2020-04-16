@@ -100,7 +100,7 @@ def loginShop():
             return jsonify({'id':login_shop,"status":205,"available":zones,"shop_types":shop_types})
 
     except Exception as e:
-        raise(e)
+        print(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -125,7 +125,7 @@ def registerShop(current_shop):
         return jsonify({'id':"shop updated",'status':201})
 
     except Exception as e:
-        raise(e)
+        print(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -146,7 +146,7 @@ def updateInventory(current_shop):
         return jsonify({'id':"inventory updated!!",'status':200})
 
     except Exception as e:
-        raise(e)
+        print(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -160,7 +160,7 @@ def get_current_inventory(current_shop):
         return jsonify({'id':items,'status':200})
 
     except Exception as e:
-        raise(e)
+        print(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -180,7 +180,7 @@ def get_essentials(current_shop):
             },'status':200})
 
     except Exception as e:
-        raise(e)
+        print(e)
         return jsonify({'id':"failed",'status':500})
 
 

@@ -84,7 +84,7 @@ def editOrders(current_shop):
             return jsonify({'id':'No orders exist','status':300})
 
     except Exception as e:
-        raise(e)
+        print(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -105,7 +105,7 @@ def editStatusOrders(current_shop):
             return jsonify({'id':'No orders exist','status':300})
 
     except Exception as e:
-        raise(e)
+        print(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -125,7 +125,7 @@ def rejectOrder(current_shop):
             return jsonify({'id':'No orders exist','status':300})
             
     except Exception as e:
-        raise(e)
+        print(e)
         return jsonify({'id':"failed",'status':500})
 
 

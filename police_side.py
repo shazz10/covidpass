@@ -440,7 +440,7 @@ def add_state_quarantine_address(current_user):
 		
 		info = mongo.db.info
 		state_q = mongo.db.state_quarantine
-
+		print(request.json)
 		i = info.find_one_and_update({"state":current_user["state"],"district.name":current_user["district"]},
 										{"$push":{"district.$.state_q_address":request.json["address"]}})
 		s= state_q.insert({
@@ -467,7 +467,7 @@ def add_state_quarantine_address(current_user):
 def get_state_quarantine_address(current_user):
 	try:
 		state_q = mongo.db.state_quarantine
-
+		
 		s = state_q.find({"state":current_user["state"],"district":current_user["district"]})
 		output=[]
 
@@ -487,13 +487,15 @@ def get_state_quarantine_address(current_user):
 def remove_state_quarantine_address(current_user):
 	try:
 		state_q = mongo.db.state_quarantine
-
+		info = mongo.db.info
 		s = state_q.find_one({"_id":ObjectId(request.json["sqid"])})
 
-		state_q.remove({"_id":ObjectId(request.json["sqid"])})
+		
 
 		i = info.find_one_and_update({"state":current_user["state"],"district.name":current_user["district"]},
 										{"$pull":{"district.$.state_q_address":s["address"]}})
+
+		state_q.remove({"_id":ObjectId(request.json["sqid"])})
 
 		return jsonify({"id":"removed","status":200})
 
