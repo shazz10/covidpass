@@ -488,7 +488,12 @@ def remove_state_quarantine_address(current_user):
 	try:
 		state_q = mongo.db.state_quarantine
 
+		s = state_q.find_one({"_id":ObjectId(request.json["sqid"])})
+
 		state_q.remove({"_id":ObjectId(request.json["sqid"])})
+
+		i = info.find_one_and_update({"state":current_user["state"],"district.name":current_user["district"]},
+										{"$pull":{"district.$.state_q_address":s["address"]}})
 
 		return jsonify({"id":"removed","status":200})
 

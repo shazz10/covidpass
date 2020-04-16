@@ -552,3 +552,25 @@ def get_zone_list(current_user):
 		print(e)
 		return jsonify({'id':"failed","status":500})
 
+
+@user_side.route('/api/get_sq_list',methods=['GET'])
+@token_required
+def get_sq_list(current_user):
+	try:
+		
+		state_q = mongo.db.state_quarantine
+
+		sqs = state_q.find({"state":current_user["state"],"district":current_user["district"]},
+			{"_id":1,"address":1,"phone":1,"lat":1,"lon":1})
+
+		output=[]
+		for sq in sqs:
+			if sq:
+				del sq["_id"]
+				output.append(sq)
+
+		return jsonify({'id':output,"status":200})
+	
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed","status":500})
