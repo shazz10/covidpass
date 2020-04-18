@@ -154,9 +154,11 @@ def glogin():
 			zones.append({"state":s["state"],"district":s["district"]})
 
 		if login_user:
+			users.find_one_and_update({'_id':login_user["_id"]},{"$set":{"player_id":request.json["player_id"]}})
 			login_user['_id']=str(login_user['_id'])
 			token = jwt.encode({'uid':login_user['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=28800)},SECRET_KEY)
 			login_user['token']=token.decode('UTF-8')
+			# login_user["player_id"]=request.json["player_id"]
 
 			quarantine_user = quarantine.find_one({"uid":login_user['_id']})
 			location={
@@ -173,6 +175,7 @@ def glogin():
 			id=users.insert({
 				'name':request.json['name'],
 				'email':request.json['email'],
+				"player_id":request.json["player_id"],
 				'passes':[],
 				'orders':[]
 				})
@@ -448,8 +451,6 @@ def get_report_quarantine(current_user):
 		
 		quarantine = mongo.db.quarantine
 		quarantine_user= quarantine.find_one({"uid":str(current_user["_id"])})
-
-		
 
 		time = datetime.datetime.utcnow()
 		time+= datetime.timedelta(minutes=330)
