@@ -153,6 +153,9 @@ def glogin():
 		for s in supports:
 			zones.append({"state":s["state"],"district":s["district"]})
 
+		if "player_id" not in request.json.keys():
+			request.json["player_id"] = ""
+
 		if login_user:
 			users.find_one_and_update({'_id':login_user["_id"]},{"$set":{"player_id":request.json["player_id"]}})
 			login_user['_id']=str(login_user['_id'])
