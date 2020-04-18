@@ -8,7 +8,19 @@ import os
 
 app = Flask("__name__")
 
-#database config starts
+# import boto3
+# AWSAccessKeyId="AKIAIGNAIE4VBZ2ZNLCA"
+# AWSSecretKey="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"
+# s3= boto3.resource(
+# 	's3',
+# 	aws_access_key_id=AWSAccessKeyId,
+# 	aws_secret_access_key=AWSSecretKey
+# )
+# b=s3.Bucket("surakhsa-storage")
+# b.Object("uploads/hazari/asdfg.txt").put(Body="awsifgyiwlehfrliUEFGIWEFHG")
+# # ob=b.Object("uploads/asdfg.txt").get()
+# # print(ob["Body"].read())
+# #database config starts
 
 app.config["MONGO_DBNAME"]="covidpass"
 app.config["MONGO_URI"]="mongodb+srv://saanayy:COVID19token-gen@token-gen-wiy46.mongodb.net/covidpass"
@@ -110,15 +122,15 @@ def insert_contactinfo():
 #input items info
 @app.route('/api/mapping_insert',methods=['POST'])
 def insertItem():
-    try:
-        items = mongo.db.item
-        
-        items.insert(request.json)
-        return jsonify({'id':"inventory updated!!",'status':200})
+	try:
+		items = mongo.db.item
+		
+		items.insert(request.json)
+		return jsonify({'id':"inventory updated!!",'status':200})
 
-    except Exception as e:
-        print(e)
-        return jsonify({'id':"failed",'status':500})
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
 
 
 

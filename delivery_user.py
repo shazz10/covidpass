@@ -87,7 +87,7 @@ def getAllShop(current_user):
                     'zone_address.subzone':current_user["subzone"],
                     'zone_address.sector':current_user["sector"]
                 },
-                {"_id":1,"address":1,"email":1,"name":1,"phone":1})
+                {"_id":1,"address":1,"email":1,"name":1,"phone":1,"type":1})
 
             for shop in shops_in_zone:
                 shop['_id']=str(shop["_id"])
@@ -102,7 +102,7 @@ def getAllShop(current_user):
                     'zone.subzone':current_user["subzone"],
                     'zone.sector':current_user["sector"]
                 },
-                {"_id":1,"address":1,"email":1,"name":1,"phone":1})
+                {"_id":1,"address":1,"email":1,"name":1,"phone":1,"type":1})
             
             for shop in shops_in_zone:
                 r = restricted.find_one({

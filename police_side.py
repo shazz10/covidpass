@@ -9,6 +9,7 @@ import datetime
 from functools import wraps
 from flask import current_app
 import sys
+from bucket import get_bucket
 
 police_side = Blueprint('police_side', __name__)
 
@@ -270,6 +271,19 @@ def get_quarantine_user_report(current_user):
 			return jsonify({'id':quarantine_user_report['report'],"status":200})
 		else:
 			return jsonify({'id':"No user found!!","status":404})
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+@police_side.route('/api/police/get_quarantine_user_report_image',methods=['POST'])
+@token_required
+def get_quarantine_user_report_image(current_user):
+	try:
+		my_bucket = get_bucket()
+		ob=my_bucket.Object(request.json["filename"]).get()
+		return ob["Body"].read()
 
 	except Exception as e:
 		print(e)

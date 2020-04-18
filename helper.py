@@ -17,12 +17,8 @@ PASSWORD = "Nitsuvidha1!"
 
 shop_types=[
     {"name":"Essentials"},
-    {"name":"Milk"},
-    {"name":"Bread"},
-    {"name":"Baby-Essentials"},
-    {"name":"Fruits & Vegetable"},
     {"name":"Medicines"},
-    {"name":"Gas Station"}
+    
 ]
 
 
@@ -130,6 +126,7 @@ def registerShop(current_shop):
             }})
 
         shops.create_index([('zone',1)], name='search_zone', default_language='english')
+        shops.create_index([('zone_address',1)], name='search_zone_address', default_language='english')
 
         return jsonify({'id':"shop updated",'status':201})
 

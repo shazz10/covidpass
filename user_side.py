@@ -9,6 +9,8 @@ import datetime
 from functools import wraps
 import os
 import uuid
+from bucket import get_bucket
+
 
 
 user_side = Blueprint('user_side', __name__)
@@ -45,6 +47,8 @@ if not os.path.exists(UPLOAD_FOLDER):
 #     {"name":"Medicines","id":6},
 #     {"name":"Gas Station","id":7}
 # ]
+
+
 security={'Hazaribag': ['AWMDA6','RWNe8V','OsFSaT','Vt20OO','vZJ9pu','EVdsTh','WMd0ww','65oX09','Y4ZVUs','NhuzmC','disnF5','2CesxZ','dX82F3','6hSuAk',
 'AuLVAh','Q7mZim','kL8uua','gaNOpz','rR0tLF','tIHP5c','hvpS9Y','tvd0V0','HFwCXn','9TjWXE','DIKLrS','SmA1gQ','4laFe1','T6t40w','3aZdHK','Pwm1pF',
 '3nRhyb','FcSql3','pcYSr2','y61Ewp','KsnXht','kYuKfV','KddAa2','v9t6oR','cz9C8N','TtNw7L','8R39kx','GWhf6O','M5m0Wl','jITitV','mqD3n4','Hc1DwY',
@@ -225,6 +229,7 @@ def get_essentials(current_user):
 		quarantine = mongo.db.quarantine
 		support = mongo.db.support
 		info = mongo.db.info
+		version = mongo.db.version
 
 		user = quarantine.find_one({"uid":str(current_user["_id"])})
 
@@ -246,15 +251,19 @@ def get_essentials(current_user):
 			is_delivery=1
 			i3["district"][0]["city"]=None
 
+		v = version.find_one({"app":"user"})
+
 		essentials={
-		"delivery_cost":0,
-		"cess_rate":0,
-		"is_quarantined":is_quarantined,
-		"support":s,
-		"emergency_contact":i1["district"][0]["emergency_contact"],
-		"state_q_address":i2["district"][0]["state_q_address"],
-		"city":i3["district"][0]["city"],
-		"is_delivery":is_delivery
+			"delivery_cost":0,
+			"cess_rate":0,
+			"is_quarantined":is_quarantined,
+			"support":s,
+			"emergency_contact":i1["district"][0]["emergency_contact"],
+			"state_q_address":i2["district"][0]["state_q_address"],
+			"city":i3["district"][0]["city"],
+			"is_delivery":is_delivery,
+			"version":v["version"],
+			"link":v["link"]
 		}
 
 		return jsonify({'id':essentials,"status":200})
@@ -397,11 +406,12 @@ def report_quarantine(current_user):
 		
 		quarantine = mongo.db.quarantine
 		quarantine_user= quarantine.find_one({"uid":str(current_user["_id"])})
+		my_bucket = get_bucket()
 
 		filename = str(uuid.uuid4())+str(len(quarantine_user['report']))+'.txt'
 
-		with open(UPLOAD_FOLDER+filename,"w") as f:
-			f.write(request.json['img'])
+
+		my_bucket.Object('uploads/'+str(quarantine_user["_id"])+'/'+filename).put(Body=request.json['img'])
 
 
 		time = datetime.datetime.utcnow()
@@ -409,7 +419,7 @@ def report_quarantine(current_user):
 		time = str(time).split('.')[0]
 		
 		report = {
-			"img":url_for('user_side.uploaded_file',filename=filename),
+			"img":'uploads/'+str(quarantine_user["_id"])+'/'+filename,
 			"location_lat":request.json['location_lat'],
 			"location_lon":request.json['location_lon'],
 			"report_time":time,
@@ -425,9 +435,9 @@ def report_quarantine(current_user):
 		return jsonify({'id':"failed","status":500})
 
 
-@user_side.route('/api/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER ,filename)
+# @user_side.route('/api/uploads/<filename>')
+# def uploaded_file(filename):
+#     return send_from_directory(UPLOAD_FOLDER ,filename)
 
 
 
