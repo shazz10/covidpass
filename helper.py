@@ -74,7 +74,7 @@ def loginShop():
             zones.append(out)
 
         if login_shop:
-            
+            shops.find_one_and_update({'_id':login_shop["_id"]},{"$set":{"player_id":request.json["player_id"]}})
             login_shop['_id']=str(login_shop['_id'])
             token = jwt.encode({'sid':login_shop['_id'],'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=7200)},SECRET_KEY)
             login_shop['token']=token.decode('UTF-8')
@@ -85,6 +85,7 @@ def loginShop():
             id=shops.insert({
                 'name':request.json['name'],
                 'email':request.json['email'],
+                "player_id":request.json["player_id"],
                 'items':[],
                 'orders':[],
                 'history':[]
@@ -181,8 +182,12 @@ def get_essentials(current_shop):
         for i in item:
             mappings.append(i["mapping"])
 
+        v = version.find_one({"app":"shopper"})
+
         return jsonify({'id':{
-            "mappings":mappings[0]
+            "mappings":mappings[0],
+            "version":v["version"],
+            "link":v["link"]
             },'status':200})
 
     except Exception as e:
