@@ -7,6 +7,8 @@ from database import mongo
 import jwt
 from functools import wraps
 import datetime
+from bucket import get_bucket
+import uuid
 
 delivery_user = Blueprint('delivery_user', __name__)
 
@@ -225,20 +227,34 @@ def pushOrder(current_user):
         orders = mongo.db.order
         users = mongo.db.user
         shops = mongo.db.shop
+        filename = ""
+        if request.json["img"] :
+
+            filename = 'prescription/'+str(current_user["_id"])+'/'+str(uuid.uuid4())+'.txt'
+
+            my_bucket = get_bucket()
+            my_bucket.Object(filename).put(Body=request.json['img'])
+
+
 
         time = datetime.datetime.utcnow()
         time+= datetime.timedelta(minutes=330)
         time = str(time).split('.')[0]
 
+        print(request.json)
+
         id = orders.insert({
         'items':request.json['items'],
         'uid':str(current_user["_id"]),
+        'img':filename,
         'sid':request.json['sid'],
         'time':time,
         'address':request.json['address'],
         'phone':current_user["phone"],
         'status':0,
         })
+
+        
 
         result1=users.find_one_and_update({"_id":current_user["_id"]},{'$push':{'orders':str(id)}})
         result2=shops.find_one_and_update({"_id":ObjectId(request.json["sid"])},{'$push':{'orders':str(id)}})
@@ -248,7 +264,7 @@ def pushOrder(current_user):
             return jsonify({'id':"user or shop not present!!",'status':404})
         return jsonify({'id':str(id),'status':201})
     except Exception as e:
-        print(e)
+        raise(e)
         return jsonify({'id':"failed",'status':500})
 
 
