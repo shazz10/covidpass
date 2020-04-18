@@ -70,6 +70,8 @@ def getAllShop(current_user):
         restricted = mongo.db.restricted
         output=[]
         res = restricted.find_one({
+            "state":current_user["state"],
+            "district":current_user["district"],
             "city":current_user["city"],
             "zone":current_user["zone"],
             "subzone":current_user["subzone"],
@@ -78,6 +80,8 @@ def getAllShop(current_user):
 
         if res:
             shops_in_zone=shops.find({
+                    'zone_address.state':current_user["state"],
+                    'zone_address.district':current_user["district"],
                     'zone_address.city':current_user["city"],
                     'zone_address.zone':current_user["zone"],
                     'zone_address.subzone':current_user["subzone"],
@@ -91,6 +95,8 @@ def getAllShop(current_user):
                 output.append(shop)
         else:
             shops_in_zone=shops.find({
+                    'zone.state':current_user["state"],
+                    'zone.district':current_user["district"],
                     'zone.city':current_user["city"],
                     'zone.zone':current_user["zone"],
                     'zone.subzone':current_user["subzone"],
@@ -100,6 +106,8 @@ def getAllShop(current_user):
             
             for shop in shops_in_zone:
                 r = restricted.find_one({
+                        "state":current_user["state"],
+                        "district":current_user["district"],
                         "city":shop["zone_address"]["city"],
                         "zone":shop["zone_address"]["zone"],
                         "subzone":shop["zone_address"]["subzone"],
