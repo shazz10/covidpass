@@ -130,3 +130,14 @@ def rejectOrder(current_shop):
 
 
 
+@delivery_shopper.route('/api/shop/get_prescription_image',methods=['POST'])
+@token_required
+def get_prescription_image(current_user):
+    try:
+        my_bucket = get_bucket()
+        ob=my_bucket.Object(request.json["filename"]).get()
+        return ob["Body"].read()
+
+    except Exception as e:
+        print(e)
+        return jsonify({'id':"failed",'status':500})
