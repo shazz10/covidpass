@@ -125,9 +125,10 @@ def registerShop(current_shop):
             'district':request.json['district'],
             'city':request.json['city'],
             'zone':request.json['zone'],
-            'type':request.json['type']
+            'type':request.json['type'],
+            'zone_address':request.json['zone_address']
             }})
-        
+
         shops.create_index([('zone',1)], name='search_zone', default_language='english')
 
         return jsonify({'id':"shop updated",'status':201})
