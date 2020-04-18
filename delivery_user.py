@@ -102,7 +102,7 @@ def getAllShop(current_user):
                     'zone.subzone':current_user["subzone"],
                     'zone.sector':current_user["sector"]
                 },
-                {"_id":1,"address":1,"email":1,"name":1,"phone":1,"type":1})
+                {"_id":1,"address":1,"email":1,"name":1,"phone":1,"type":1,"zone_address":1})
             
             for shop in shops_in_zone:
                 r = restricted.find_one({
@@ -126,7 +126,7 @@ def getAllShop(current_user):
 
 
     except Exception as e:
-        print(e)
+        raise(e)
         return jsonify({'id':"failed",'status':500})
 
 
