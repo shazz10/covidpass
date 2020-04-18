@@ -69,7 +69,13 @@ def loginShop():
         infos = info.find()
         for i in infos:
             del i["_id"]
-            zones.append(i)
+            out={}
+            out["state"]=i["state"]
+            out["district"]=[]
+            for d in i["district"]:
+                if len(d["city"])>0:
+                    out['district'].append(d)
+            zones.append(out)
 
         if login_shop:
             
@@ -121,6 +127,8 @@ def registerShop(current_shop):
             'zone':request.json['zone'],
             'type':request.json['type']
             }})
+        
+        shops.create_index([('zone',1)], name='search_zone', default_language='english')
 
         return jsonify({'id':"shop updated",'status':201})
 

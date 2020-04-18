@@ -68,24 +68,48 @@ def getAllShop(current_user):
     try:
         shops = mongo.db.shop
         restricted = mongo.db.restricted
-
+        output=[]
         res = restricted.find_one({
             "city":current_user["city"],
             "zone":current_user["zone"],
             "subzone":current_user["subzone"],
             "sector":current_user["sector"]
             })
-        if res:
-            return jsonify({'id':"Your location is restricted for delivery!!",'status':300})
 
-        output=[]
-        shops_in_zone=shops.find({'zone':current_user["zone"]},
-            {"_id":1,"address":1,"email":1,"name":1,"phone":1})
-        
-        for shop in shops_in_zone:
-            shop['_id']=str(shop["_id"])
-            shop['items'] = None
-            output.append(shop)
+        if res:
+            shops_in_zone=shops.find({
+                    'zone_address.city':current_user["city"],
+                    'zone_address.zone':current_user["zone"],
+                    'zone_address.subzone':current_user["subzone"],
+                    'zone_address.sector':current_user["sector"]
+                },
+                {"_id":1,"address":1,"email":1,"name":1,"phone":1})
+
+            for shop in shops_in_zone:
+                shop['_id']=str(shop["_id"])
+                shop['items'] = None
+                output.append(shop)
+        else:
+            shops_in_zone=shops.find({
+                    'zone.city':current_user["city"],
+                    'zone.zone':current_user["zone"],
+                    'zone.subzone':current_user["subzone"],
+                    'zone.sector':current_user["sector"]
+                },
+                {"_id":1,"address":1,"email":1,"name":1,"phone":1})
+            
+            for shop in shops_in_zone:
+                r = restricted.find_one({
+                        "city":shop["zone_address"]["city"],
+                        "zone":shop["zone_address"]["zone"],
+                        "subzone":shop["zone_address"]["subzone"],
+                        "sector":shop["zone_address"]["sector"]
+                    })
+                if r:
+                    continue
+                shop['_id']=str(shop["_id"])
+                shop['items'] = None
+                output.append(shop)
 
         if len(output)>0:
             return jsonify({'id':output,'status':200})
