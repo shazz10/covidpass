@@ -241,8 +241,6 @@ def pushOrder(current_user):
         time+= datetime.timedelta(minutes=330)
         time = str(time).split('.')[0]
 
-        print(request.json)
-
         id = orders.insert({
         'items':request.json['items'],
         'uid':str(current_user["_id"]),
