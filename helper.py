@@ -177,6 +177,7 @@ def get_current_inventory(current_shop):
 def get_essentials(current_shop):
     try:
         items = mongo.db.item
+        version = mongo.db.version
 
         item= items.find({})
         mappings=[]
@@ -184,6 +185,8 @@ def get_essentials(current_shop):
             mappings.append(i["mapping"])
 
         v = version.find_one({"app":"shopper"})
+
+        print(v)
 
         return jsonify({'id':{
             "mappings":mappings[0],
