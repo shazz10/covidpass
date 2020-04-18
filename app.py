@@ -8,12 +8,29 @@ import os
 
 app = Flask("__name__")
 
+# import boto3
+# AWSAccessKeyId="AKIAIGNAIE4VBZ2ZNLCA"
+# AWSSecretKey="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"
+# s3= boto3.resource(
+# 	's3',
+# 	aws_access_key_id=AWSAccessKeyId,
+# 	aws_secret_access_key=AWSSecretKey
+# )
+# b=s3.Bucket("surakhsa-storage")
+# # b.Object("asdfg.txt").put(Body="awsifgyiwlehfrliUEFGIWEFHG")
+# ob=b.Object("uploads/5e9b6cd0de1e4a09bbac2479/97321ed0-62a8-4b0a-9760-fdbcbd3f9a5f5.txt").get()
+# # print(ob["Body"].read())
+# #import base64
+# imgdata = (ob["Body"].read()).decode('utf-8')
+# print(imgdata)
+# # filename = 'some_image.jpg'  # I assume you have a way of picking unique filenames
+# # with open(filename, 'wb') as f:
+# #     f.write(imgdata)
 
 # #database config starts
 
 app.config["MONGO_DBNAME"]="covidpass"
 app.config["MONGO_URI"]="mongodb+srv://saanayy:COVID19token-gen@token-gen-wiy46.mongodb.net/covidpass"
-
 #username-saanayy
 #password-COVID19token-gen
 

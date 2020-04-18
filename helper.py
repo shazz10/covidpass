@@ -116,6 +116,7 @@ def registerShop(current_shop):
         
         id = shops.find_one_and_update({"_id":current_shop["_id"]},{"$set":{
             'name':request.json['name'],
+            'shop_name':request.json["shop_name"],
             'phone':request.json['phone'],
             'address':request.json['address'],
             'state':request.json['state'],

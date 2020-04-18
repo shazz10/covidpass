@@ -87,7 +87,7 @@ def getAllShop(current_user):
                     'zone_address.subzone':current_user["subzone"],
                     'zone_address.sector':current_user["sector"]
                 },
-                {"_id":1,"address":1,"email":1,"name":1,"phone":1,"type":1})
+                {"_id":1,"address":1,"email":1,"shop_name":1,"phone":1,"type":1})
 
             for shop in shops_in_zone:
                 shop['_id']=str(shop["_id"])
@@ -217,6 +217,7 @@ def get_order(current_user):
         return jsonify({'id':"failed",'status':500})
 
 
+
 @delivery_user.route('/api/push_orders',methods=['POST'])
 @token_required
 def pushOrder(current_user):
@@ -249,6 +250,41 @@ def pushOrder(current_user):
     except Exception as e:
         print(e)
         return jsonify({'id':"failed",'status':500})
+
+
+
+# @delivery_user.route('/api/push_medicine_orders',methods=['POST'])
+# @token_required
+# def pushOrder(current_user):
+#     try:
+#         orders = mongo.db.order
+#         users = mongo.db.user
+#         shops = mongo.db.shop
+
+#         time = datetime.datetime.utcnow()
+#         time+= datetime.timedelta(minutes=330)
+#         time = str(time).split('.')[0]
+
+#         id = orders.insert({
+#         'items':request.json['items'],
+#         'uid':str(current_user["_id"]),
+#         'sid':request.json['sid'],
+#         'time':time,
+#         'address':request.json['address'],
+#         'phone':current_user["phone"],
+#         'status':0,
+#         })
+
+#         result1=users.find_one_and_update({"_id":current_user["_id"]},{'$push':{'orders':str(id)}})
+#         result2=shops.find_one_and_update({"_id":ObjectId(request.json["sid"])},{'$push':{'orders':str(id)}})
+
+#         if not result1 or not result2:
+#             orders.remove({"_id":ObjectId(id)})
+#             return jsonify({'id':"user or shop not present!!",'status':404})
+#         return jsonify({'id':str(id),'status':201})
+#     except Exception as e:
+#         print(e)
+#         return jsonify({'id':"failed",'status':500})
 
 
 @delivery_user.route('/api/update_order',methods=['POST'])

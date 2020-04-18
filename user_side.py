@@ -438,9 +438,9 @@ def report_quarantine(current_user):
 		return jsonify({'id':"failed","status":500})
 
 
-# @user_side.route('/api/uploads/<filename>')
-# def uploaded_file(filename):
-#     return send_from_directory(UPLOAD_FOLDER ,filename)
+@user_side.route('/api/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_FOLDER ,filename)
 
 
 
