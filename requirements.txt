@@ -5,3 +5,4 @@ PyJWT
 dnspython
 datetime
 boto3
+requests
