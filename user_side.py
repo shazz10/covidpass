@@ -228,6 +228,30 @@ def gregister(current_user):
 		return jsonify({'id':"failed",'status':500})
 
 
+@user_side.route('/api/edit_address',methods=['POST'])
+@token_required
+def edit_address(current_user):
+	try:
+
+		users = mongo.db.user
+		
+		id = users.find_one_and_update({"_id":current_user["_id"]},{"$set":
+			{
+			'address':request.json['address'],
+			'state':request.json['state'],
+			'district':request.json['district']
+			}})
+
+
+		return jsonify({'id':"user updated",'status':201})
+		
+
+	except Exception as e:
+		print(e)
+		return jsonify({'id':"failed",'status':500})
+
+
+
 @user_side.route('/api/get_essentials',methods=['GET'])
 @token_required
 def get_essentials(current_user):
