@@ -9,6 +9,7 @@ from functools import wraps
 import datetime
 from bucket import get_bucket
 import uuid
+from notification import createSpecificNotification
 
 delivery_user = Blueprint('delivery_user', __name__)
 
@@ -227,6 +228,7 @@ def pushOrder(current_user):
         orders = mongo.db.order
         users = mongo.db.user
         shops = mongo.db.shop
+
         filename = ""
         if request.json["img"] :
 
@@ -260,6 +262,11 @@ def pushOrder(current_user):
         if not result1 or not result2:
             orders.remove({"_id":ObjectId(id)})
             return jsonify({'id':"user or shop not present!!",'status':404})
+
+
+        shop = shops.find_one({"_id":ObjectId(request.json['sid'])},{"player_id":1})
+        createSpecificNotification([shop["player_id"]],"New Order placed!!","Please got to your Orders: Check, Edit and Accept Order soon. Thanks!!")
+            
         return jsonify({'id':str(id),'status':201})
     except Exception as e:
         raise(e)
@@ -309,12 +316,20 @@ def update_order(current_user):
         users = mongo.db.user
         shops = mongo.db.shop
 
+        shop = users.find_one({"_id":ObjectId(request.json['sid'])},{"player_id":1})
+
         if int(request.json["status"])==-1:
             orders.find_one_and_update({"_id":ObjectId(request.json["oid"])},{'$set':{'status':-1}})
-            shops.find_one_and_update({"_id":ObjectId(request.json["sid"])},{"$pull":{"orders":request.json["oid"]}})
+            shops.find_one_and_update({"_id":ObjectId(request.json["sid"])},{"$pull":{"orders":request.json["oid"]}})     
+            
+            createSpecificNotification([shop["player_id"]],"Order Rejected!!","Sorry but one of your Order is Rejected due to some reason. Please check your orders. Thanks!!")
+
             return jsonify({'id':"rejected",'status':202})
         elif int(request.json["status"])==2:
             orders.find_one_and_update({"_id":ObjectId(request.json["oid"])},{'$set':{'status':2}})
+            
+            createSpecificNotification([shop["player_id"]],"Order Approved from User!!","Your accepted order has been Approved by User!! Please check your Approved orders. Thanks!!")
+
             return jsonify({'id':"accepted!!",'status':201})
 
         return jsonify({'id':"error",'status':404})

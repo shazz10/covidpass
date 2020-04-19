@@ -6,12 +6,20 @@ from bson.objectid import ObjectId
 from database import mongo
 import jwt
 from functools import wraps
-
+from notification import createSpecificNotification
 
 delivery_shopper = Blueprint('delivery_shopper', __name__)
 
 
 SECRET_KEY = "keepitsecret!!"
+
+status_map ={
+    0:"Pending",
+    1:"Accepted and Waiting for Approval",
+    2:"Approved",
+    3:"Out for Delivery",
+    4:"Delivered"
+}
 
 def token_required(f):
     @wraps(f)
@@ -80,10 +88,14 @@ def getAllShopOrders(current_shop,status):
 def editOrders(current_shop):
     try:
         orders = mongo.db.order
+        users = mongo.db.user
         result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},
             {'$set':{'items':request.json['items'],'amount':request.json['amount'],'delivery_time':request.json["delivery_time"],'status':1}})
 
         if result:
+            order = orders.find_one({"_id":ObjectId(request.json['oid'])},{"uid":1})
+            user = users.find_one({"_id":ObjectId(order["uid"])},{"player_id":1})
+            createSpecificNotification([user["player_id"]],"Order Accepted by Shopkeeper","Please check the order in history tab of homepage and Approve. Thanks!!")
             return jsonify({'id':"updated successfully",'status':201})
         else:
             return jsonify({'id':'No orders exist','status':300})
@@ -99,12 +111,17 @@ def editStatusOrders(current_shop):
     try:
         orders = mongo.db.order
         shops = mongo.db.shop
+        users = mongo.db.user
+
         result = orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$set':{'status':int(request.json["status"])}})
         if int(request.json["status"])==4 and result:
             shops.find_one_and_update({"_id":current_shop["_id"]},{"$pull":{"orders":request.json['oid']}})
             shops.find_one_and_update({"_id":current_shop["_id"]},{"$push":{"history":request.json['oid']}})
 
         if result:
+            order = orders.find_one({"_id":ObjectId(request.json['oid'])},{"uid":1})
+            user = users.find_one({"_id":ObjectId(order["uid"])},{"player_id":1})
+            createSpecificNotification([user["player_id"]],"Order Status Updated!!","Order is {}!! Please check the order in history tab of homepage. Thanks!!",format(status_map[int(request.json["status"])]))
             return jsonify({'id':"updated successfully",'status':201})
         else:
             return jsonify({'id':'No orders exist','status':300})
@@ -120,11 +137,15 @@ def rejectOrder(current_shop):
     try:
         orders = mongo.db.order
         shops = mongo.db.shop
+        users = mongo.db.user
 
         result=orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$set':{'status':-1}})
         shops.find_one_and_update({"_id":current_shop["_id"]},{'$pull':{'orders':request.json['oid']}})
 
         if result:
+            order = orders.find_one({"_id":ObjectId(request.json['oid'])},{"uid":1})
+            user = users.find_one({"_id":ObjectId(order["uid"])},{"player_id":1})
+            createSpecificNotification([user["player_id"]],"Order Rejected!!","Sorry but your Order is Rejected due to some reason. Please contact the Shopkeeper in case of Queries. Thanks!!")
             return jsonify({'id':"updated successfully",'status':201})
         else:
             return jsonify({'id':'No orders exist','status':300})

@@ -16,7 +16,7 @@ def createSpecificNotification(player_ids, title, message):
 	#  do not change till here.
 
 	# Todo: modify this print so, that it sends the response to the log, or the somewhere where it can be monitored.
-	print(req.status_code, req.reason)
+	#print(req.status_code, req.reason)
 
 
 def createGeneralNotification(title, message):
@@ -29,7 +29,5 @@ def createGeneralNotification(title, message):
 	 
 	req = requests.post("https://onesignal.com/api/v1/notifications", headers=header, data=json.dumps(payload))
 	 
-	print(req.text)
+	#print(req.text)
 
-
-createGeneralNotification("Hello", "general notif")
