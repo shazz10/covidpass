@@ -319,11 +319,11 @@ def update_order(current_user):
         shop = shops.find_one({"_id":ObjectId(request.json['sid'])},{"player_id":1})
         order = orders.find_one({"_id":ObjectId(request.json["oid"])},{"status":1})
 
-        if order["status"] <3 and int(request.json["status"])==-1:
-            orders.find_one_and_update({"_id":ObjectId(request.json["oid"])},{'$set':{'status':-1}})
+        if order["status"] <3 and int(request.json["status"])==-2:
+            orders.find_one_and_update({"_id":ObjectId(request.json["oid"])},{'$set':{'status':-2}})
             shops.find_one_and_update({"_id":ObjectId(request.json["sid"])},{"$pull":{"orders":request.json["oid"]}})     
             
-            createSpecificNotification([shop["player_id"]],"Order Rejected!!","Sorry but one of your Order is Rejected due to some reason. Please check your orders. Thanks!!")
+            createSpecificNotification([shop["player_id"]],"Order Cancelled!!","Sorry but one of your Order is Cancelled due to some reason. Please check your orders. Thanks!!")
 
             return jsonify({'id':"rejected",'status':202})
         elif int(request.json["status"])==2:
