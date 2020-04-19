@@ -50,7 +50,12 @@ def getAllShopOrders(current_shop,status):
         
         orders_list=[]
 
-        if int(status)==3:
+        statuses = [int(status)]
+
+        if int(status)==2:
+            statuses.append(3)
+
+        if int(status)==4:
             orders_list=current_shop['history']
         else:
             orders_list=current_shop['orders']
@@ -60,7 +65,7 @@ def getAllShopOrders(current_shop,status):
         else:
             for order in orders_list:
                 sorder=orders.find_one({'_id':ObjectId(order)})
-                if sorder and sorder["status"]==int(status):
+                if sorder and sorder["status"] in statuses:
                     sorder['_id']=str(sorder["_id"])
                     output.append(sorder)
             return jsonify({'id':output,'status':201})
