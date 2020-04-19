@@ -186,8 +186,6 @@ def get_essentials(current_shop):
 
         v = version.find_one({"app":"shopper"})
 
-        print(v)
-
         return jsonify({'id':{
             "mappings":mappings[0],
             "version":v["version"],

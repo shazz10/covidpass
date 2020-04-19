@@ -129,7 +129,7 @@ def getAllShop(current_user):
 
 
     except Exception as e:
-        raise(e)
+        print(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -269,7 +269,7 @@ def pushOrder(current_user):
             
         return jsonify({'id':str(id),'status':201})
     except Exception as e:
-        raise(e)
+        print(e)
         return jsonify({'id':"failed",'status':500})
 
 
@@ -327,7 +327,7 @@ def update_order(current_user):
             return jsonify({'id':"rejected",'status':202})
         elif int(request.json["status"])==2:
             orders.find_one_and_update({"_id":ObjectId(request.json["oid"])},{'$set':{'status':2}})
-            
+
             createSpecificNotification([shop["player_id"]],"Order Approved from User!!","Your accepted order has been Approved by User!! Please check your Approved orders. Thanks!!")
 
             return jsonify({'id':"accepted!!",'status':201})
