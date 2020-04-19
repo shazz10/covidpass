@@ -230,7 +230,7 @@ def pushOrder(current_user):
         shops = mongo.db.shop
 
         filename = ""
-        if request.json["img"] :
+        if "img" in request.json.keys() and request.json["img"] :
 
             filename = 'prescription/'+str(current_user["_id"])+'/'+str(uuid.uuid4())+'.txt'
 
