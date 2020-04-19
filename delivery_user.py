@@ -173,7 +173,7 @@ def getAllOrders(current_user):
             if o:
                 o["_id"]=str(o["_id"])
                 shop = shops.find_one({"_id":ObjectId(o['sid'])},
-                    {"_id":1,"name":1,"email":1,"address":1,"phone":1})
+                    {"_id":1,"shop_name":1,"email":1,"address":1,"phone":1})
                 if shop:
                     shop["_id"]=str(shop["_id"])
                 o["shop_details"]=shop
@@ -206,7 +206,7 @@ def get_order(current_user):
         if o:
             o["_id"]=str(o["_id"])
             shop = shops.find_one({"_id":ObjectId(o['sid'])},
-                    {"_id":1,"name":1,"email":1,"address":1,"phone":1})
+                    {"_id":1,"shop_name":1,"email":1,"address":1,"phone":1})
             if shop:
                 shop["_id"]=str(shop["_id"])
             o["shop_details"]=shop
