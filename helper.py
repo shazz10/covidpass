@@ -75,7 +75,7 @@ def loginShop():
 
         if "player_id" not in request.json.keys():
             request.json["player_id"] = ""
-            
+
         if login_shop:
             shops.find_one_and_update({'_id':login_shop["_id"]},{"$set":{"player_id":request.json["player_id"]}})
             login_shop['_id']=str(login_shop['_id'])
@@ -192,7 +192,8 @@ def get_essentials(current_shop):
         return jsonify({'id':{
             "mappings":mappings[0],
             "version":v["version"],
-            "link":v["link"]
+            "link":v["link"],
+            "type":current_shop["type"]
             },'status':200})
 
     except Exception as e:
