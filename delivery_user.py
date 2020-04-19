@@ -316,9 +316,10 @@ def update_order(current_user):
         users = mongo.db.user
         shops = mongo.db.shop
 
-        shop = users.find_one({"_id":ObjectId(request.json['sid'])},{"player_id":1})
+        shop = shops.find_one({"_id":ObjectId(request.json['sid'])},{"player_id":1})
+        order = users.find_one({"_id":ObjectId(request.json["oid"])},{"status":1})
 
-        if int(request.json["status"])==-1:
+        if order["status"] <3 and int(request.json["status"])==-1:
             orders.find_one_and_update({"_id":ObjectId(request.json["oid"])},{'$set':{'status':-1}})
             shops.find_one_and_update({"_id":ObjectId(request.json["sid"])},{"$pull":{"orders":request.json["oid"]}})     
             

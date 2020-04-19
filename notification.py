@@ -9,8 +9,8 @@ def createSpecificNotification(player_ids, title, message):
 
 	payload = {"app_id": "a447ef5f-5633-4c56-b2c3-43a9910c7fcf",
 	           "include_player_ids": player_ids,
-	           "contents": {"en": title},
-	           "headings": {"en": message}}
+	           "contents": {"en": message},
+	           "headings": {"en": title}}
 	 
 	req = requests.post("https://onesignal.com/api/v1/notifications", headers=header, data=json.dumps(payload))
 	#  do not change till here.
