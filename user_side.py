@@ -283,6 +283,11 @@ def get_essentials(current_user):
 
 		v = version.find_one({"app":"user"})
 
+		supports = support.find({})
+		zones=[]
+		for supp in supports:
+			zones.append({"state":supp["state"],"district":supp["district"]})
+
 		essentials={
 			"delivery_cost":0,
 			"cess_rate":0,
@@ -293,7 +298,8 @@ def get_essentials(current_user):
 			"city":i3["district"][0]["city"],
 			"is_delivery":is_delivery,
 			"version":v["version"],
-			"link":v["link"]
+			"link":v["link"],
+			"available":zones
 		}
 
 		return jsonify({'id':essentials,"status":200})
