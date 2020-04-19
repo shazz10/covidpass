@@ -94,8 +94,8 @@ def editStatusOrders(current_shop):
     try:
         orders = mongo.db.order
         shops = mongo.db.shop
-        result = orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$set':{'status':1}})
-        if result:
+        result = orders.find_one_and_update({"_id":ObjectId(request.json['oid'])},{'$set':{'status':int(request.json["status"])}})
+        if int(request.json["status"])==4 and result:
             shops.find_one_and_update({"_id":current_shop["_id"]},{"$pull":{"orders":request.json['oid']}})
             shops.find_one_and_update({"_id":current_shop["_id"]},{"$push":{"history":request.json['oid']}})
 
