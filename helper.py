@@ -73,6 +73,9 @@ def loginShop():
                     out['district'].append(d)
             zones.append(out)
 
+        if "player_id" not in request.json.keys():
+            request.json["player_id"] = ""
+            
         if login_shop:
             shops.find_one_and_update({'_id':login_shop["_id"]},{"$set":{"player_id":request.json["player_id"]}})
             login_shop['_id']=str(login_shop['_id'])
