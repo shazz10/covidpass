@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from flask_pymongo import PyMongo
+import flask
 import bcrypt
 import json
 from bson.objectid import ObjectId
@@ -10,6 +11,7 @@ import datetime
 from bucket import get_bucket
 import uuid
 from notification import createSpecificNotification
+import json
 
 delivery_user = Blueprint('delivery_user', __name__)
 
@@ -230,12 +232,27 @@ def pushOrder(current_user):
         shops = mongo.db.shop
 
         filename = ""
-        if "img" in request.json.keys() and request.json["img"] :
+        items=[]
+        sid = ""
+        address = ""
 
-            filename = 'prescription/'+str(current_user["_id"])+'/'+str(uuid.uuid4())+'.txt'
-
+        if request.headers["Content-Type"] == "multipart/form-data":
+            filename = 'prescription/'+str(current_user["_id"])+'/'+str(uuid.uuid4())+'.png'
             my_bucket = get_bucket()
-            my_bucket.Object(filename).put(Body=request.json['img'])
+            my_bucket.Object(filename).put(Body=request.files['pic'])
+            filename = "https://surakhsa-storage.s3.ap-south-1.amazonaws.com/"+filename
+
+            data = json.loads(request.form["data"])
+
+            items = data['items']
+            sid = data['sid']
+            address = data['address']
+
+        else:
+            items= request.json['items']
+            sid = request.json['sid']
+            address = request.json['address']
+
 
 
 
@@ -244,12 +261,12 @@ def pushOrder(current_user):
         time = str(time).split('.')[0]
 
         id = orders.insert({
-        'items':request.json['items'],
+        'items':items,
         'uid':str(current_user["_id"]),
         'img':filename,
-        'sid':request.json['sid'],
+        'sid':sid,
         'time':time,
-        'address':request.json['address'],
+        'address':address,
         'phone':current_user["phone"],
         'status':0,
         })
@@ -272,6 +289,37 @@ def pushOrder(current_user):
         print(e)
         return jsonify({'id':"failed",'status':500})
 
+
+# @delivery_user.route('/api/upload_prescript',methods=['POST'])
+
+# def upload_prescription():
+#     try:
+        
+
+#         #print(request.files)
+#         #file.save("abc.png")
+#         # imagefile = request.files["pic"]
+
+#         # imagefile.save("abc.png")
+
+#         print(request.files)
+#         print(request.form)
+#         print(request.json)
+#         print(request.args)
+
+#         # filename = ""
+#         # if "img" in request.json.keys() and request.json["img"] :
+
+#         #     filename = 'prescription/'+str(current_user["_id"])+'/'+str(uuid.uuid4())+'.txt'
+
+#         #     my_bucket = get_bucket()
+#         #     my_bucket.Object(filename).put(Body=request.json['img'])
+#         #print("hello")
+
+#         return jsonify({'id':"filename.jpg",'status':201})
+#     except Exception as e:
+#         raise(e)
+#         return jsonify({'id':"failed",'status':500})
 
 
 # @delivery_user.route('/api/push_medicine_orders',methods=['POST'])

@@ -122,7 +122,7 @@ def editStatusOrders(current_shop):
         if result:
             order = orders.find_one({"_id":ObjectId(request.json['oid'])},{"uid":1})
             user = users.find_one({"_id":ObjectId(order["uid"])},{"player_id":1})
-            createSpecificNotification([user["player_id"]],"Order Status Updated!!","Order is {}!! Please check the order in history tab of homepage. Thanks!!",format(status_map[int(request.json["status"])]))
+            createSpecificNotification([user["player_id"]],"Order Status Updated!!","Order is {}!! Please check the order in history tab of homepage. Thanks!!".format(status_map[int(request.json["status"])]))
             return jsonify({'id':"updated successfully",'status':201})
         else:
             return jsonify({'id':'No orders exist','status':300})
