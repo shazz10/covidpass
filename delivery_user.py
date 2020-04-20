@@ -227,6 +227,7 @@ def get_order(current_user):
 @token_required
 def pushOrder(current_user):
     try:
+
         orders = mongo.db.order
         users = mongo.db.user
         shops = mongo.db.shop
@@ -235,8 +236,11 @@ def pushOrder(current_user):
         items=[]
         sid = ""
         address = ""
-
-        if request.headers["Content-Type"] == "multipart/form-data":
+        
+        # print(request.files)
+        # print(request.form)
+        # print(request.json)
+        if request.headers["Content-Type"].startswith("multipart/form-data"):
             filename = 'prescription/'+str(current_user["_id"])+'/'+str(uuid.uuid4())+'.png'
             my_bucket = get_bucket()
             my_bucket.Object(filename).put(Body=request.files['pic'])
