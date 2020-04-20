@@ -42,6 +42,31 @@ def token_required(f):
 
     return decorator
 
+
+# def token_required_push_order(f):
+#     @wraps(f)
+#     def decorator(*args,**kwargs):
+
+#         token=None
+#         users = mongo.db.user
+
+#         if 'x-access-tokens' in request.form:
+#             token = request.form['x-access-tokens']
+
+#         if not token:
+#             return jsonify({'id':'a valid token is missing','status':303})
+
+#         try:
+#             data = jwt.decode(token,SECRET_KEY)
+#             user = users.find_one({"_id":ObjectId(data['uid'])})
+
+#         except Exception as e:
+#             return jsonify({"id":"token is invalid!!","status":302}) 
+
+#         return f(user,*args,**kwargs)
+
+#     return decorator
+
 @delivery_user.route('/api/set_delivery_address',methods=['POST'])
 @token_required
 def set_delivery_address(current_user):
@@ -236,10 +261,7 @@ def pushOrder(current_user):
         items=[]
         sid = ""
         address = ""
-        
-        # print(request.files)
-        # print(request.form)
-        # print(request.json)
+
         if request.headers["Content-Type"].startswith("multipart/form-data"):
             filename = 'prescription/'+str(current_user["_id"])+'/'+str(uuid.uuid4())+'.png'
             my_bucket = get_bucket()
@@ -278,19 +300,19 @@ def pushOrder(current_user):
         
 
         result1=users.find_one_and_update({"_id":current_user["_id"]},{'$push':{'orders':str(id)}})
-        result2=shops.find_one_and_update({"_id":ObjectId(request.json["sid"])},{'$push':{'orders':str(id)}})
+        result2=shops.find_one_and_update({"_id":ObjectId(sid)},{'$push':{'orders':str(id)}})
 
         if not result1 or not result2:
             orders.remove({"_id":ObjectId(id)})
             return jsonify({'id':"user or shop not present!!",'status':404})
 
 
-        shop = shops.find_one({"_id":ObjectId(request.json['sid'])},{"player_id":1})
+        shop = shops.find_one({"_id":ObjectId(sid)},{"player_id":1})
         createSpecificNotification([shop["player_id"]],"New Order placed!!","Please got to your Orders: Check, Edit and Accept Order soon. Thanks!!")
             
         return jsonify({'id':str(id),'status':201})
     except Exception as e:
-        print(e)
+        raise(e)
         return jsonify({'id':"failed",'status':500})
 
 
